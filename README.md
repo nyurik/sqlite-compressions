@@ -7,7 +7,7 @@
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 
 
-Add various compression functions to SQLite such as GZIP and Brotli. 
+Add compression, decompression, and testing functions to SQLite for Brotli and gzip encodings.
 
 This crate uses [rusqlite](https://crates.io/crates/rusqlite) to add user-defined functions using static linking. Eventually it would be good to build dynamically loadable extension binaries usable from other languages (PRs welcome).
 

@@ -8,7 +8,7 @@ use rusqlite::Error::UserFunctionError;
 use crate::common::{register_compression, Encoder};
 use crate::rusqlite::{Connection, Result};
 
-/// Register the `gzip` SQL function with the given `SQLite` connection.
+/// Register the `gzip` SQL functions with the given `SQLite` connection.
 /// The function takes a single argument and returns the [GZIP compression](https://en.wikipedia.org/wiki/Gzip) (blob) of that argument.
 /// The argument can be either a string or a blob.
 /// If the argument is `NULL`, the result is `NULL`.
@@ -46,7 +46,6 @@ impl Encoder for GzipEncoder {
     fn dec_name() -> &'static str {
         "gzip_decode"
     }
-
     fn test_name() -> &'static str {
         "gzip_test"
     }

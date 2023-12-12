@@ -43,7 +43,6 @@ impl Encoder for BrotliEncoder {
     fn dec_name() -> &'static str {
         "brotli_decode"
     }
-
     fn test_name() -> &'static str {
         "brotli_test"
     }
