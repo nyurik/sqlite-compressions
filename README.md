@@ -41,13 +41,17 @@ fn main() {
 }
 ```
 
-## Features
+## Crate features
 By default, this crate will compile with all features. You can enable just the ones you need to reduce compile time and binary size.
 
 ```toml
 [dependencies]
 sqlite-compressions = { version = "0.1", default-features = false, features = ["brotli"] }
 ``` 
+
+* `trace` - enable tracing support, logging all function calls and their arguments
+* `brotli` - enable Brotli compression support
+* `gzip` - enable GZIP compression support
 
 ## Development
 * This project is easier to develop with [just](https://github.com/casey/just#readme), a modern alternative to `make`. Install it with `cargo install just`.

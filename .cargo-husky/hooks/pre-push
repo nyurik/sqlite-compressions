@@ -41,4 +41,4 @@ cargo test --doc
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 
 cargo clippy -- -D warnings
-cargo clippy --all-features -- -D warnings
+cargo clippy --workspace --all-features --all-targets --bins --tests --lib --benches -- -D warnings

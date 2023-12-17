@@ -1,12 +1,5 @@
-#![allow(dead_code)]
-#![allow(dead_code, unused_macros)]
-#![allow(
-    clippy::missing_panics_doc,
-    clippy::must_use_candidate,
-    clippy::new_without_default
-)]
-
 use insta::{allow_duplicates, assert_snapshot};
+use rstest::rstest;
 use rusqlite::types::FromSql;
 use rusqlite::{Connection, Result};
 
@@ -17,19 +10,21 @@ fn init() {
 
 pub struct Conn(Connection);
 
-impl Conn {
-    pub fn new() -> Self {
+impl Default for Conn {
+    fn default() -> Self {
         let db = Connection::open_in_memory().unwrap();
         sqlite_compressions::register_compression_functions(&db).unwrap();
         Self(db)
     }
+}
 
+impl Conn {
     pub fn sql<T: FromSql>(&self, query: &str) -> Result<T> {
         self.0.query_row_and_then(query, [], |r| r.get(0))
     }
 
     pub fn s(&self, func: &str, param: &str) -> String {
-        let query = format!("SELECT {}", param.replace("%", func));
+        let query = format!("SELECT {}", param.replace('%', func));
         match self.sql::<Option<Vec<u8>>>(&query) {
             Ok(v) => match v {
                 Some(v) => hex::encode(v),
@@ -40,7 +35,7 @@ impl Conn {
     }
 
     pub fn bool(&self, func: &str, param: &str) -> String {
-        let query = format!("SELECT {}", param.replace("%", func));
+        let query = format!("SELECT {}", param.replace('%', func));
         match self.sql::<Option<bool>>(&query) {
             Ok(v) => match v {
                 Some(v) => v.to_string(),
@@ -51,46 +46,42 @@ impl Conn {
     }
 }
 
+#[rstest]
+#[cfg_attr(feature = "gzip", case("gzip"))]
+#[cfg_attr(feature = "brotli", case("brotli"))]
+#[trace]
 #[test]
-fn common() {
-    let c = Conn::new();
+fn common(#[case] func: &str) {
+    let c = Conn::default();
+    allow_duplicates!(
+        assert_snapshot!(c.s(func, "%(NULL)"), @"NULL");
+        assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
+        assert_snapshot!(c.s(func, "%_test(NULL)"), @"NULL");
 
-    for func in [
-        #[cfg(feature = "gzip")]
-        "gzip",
-        #[cfg(feature = "brotli")]
-        "brotli",
-    ] {
-        allow_duplicates!(
-            assert_snapshot!(c.s(func, "%(NULL)"), @"NULL");
-            assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
-            assert_snapshot!(c.s(func, "%_test(NULL)"), @"NULL");
+        assert_snapshot!(c.s(func, "%()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
+        assert_snapshot!(c.s(func, "%(1)"), @"Invalid function parameter type Integer at index 0");
+        assert_snapshot!(c.s(func, "%(0.42)"), @"Invalid function parameter type Real at index 0");
 
-            assert_snapshot!(c.s(func, "%()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
-            assert_snapshot!(c.s(func, "%(1)"), @"Invalid function parameter type Integer at index 0");
-            assert_snapshot!(c.s(func, "%(0.42)"), @"Invalid function parameter type Real at index 0");
+        assert_snapshot!(c.s(func, "%_decode()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
+        assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
+        assert_snapshot!(c.s(func, "%_decode(1)"), @"Invalid function parameter type Integer at index 0");
+        assert_snapshot!(c.s(func, "%_decode(0.42)"), @"Invalid function parameter type Real at index 0");
 
-            assert_snapshot!(c.s(func, "%_decode()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
-            assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
-            assert_snapshot!(c.s(func, "%_decode(1)"), @"Invalid function parameter type Integer at index 0");
-            assert_snapshot!(c.s(func, "%_decode(0.42)"), @"Invalid function parameter type Real at index 0");
+        assert_snapshot!(c.s(func, "%_decode(%(''))"), @"");
+        assert_snapshot!(c.s(func, "%_decode(%(x''))"), @"");
+        assert_snapshot!(c.s(func, "%_decode(%('a'))"), @"61");
+        assert_snapshot!(c.s(func, "%_decode(%(x'00'))"), @"00");
+        assert_snapshot!(c.s(func, "%_decode(%('123456789'))"), @"313233343536373839");
+        assert_snapshot!(c.s(func, "%_decode(%(x'0123456789abcdef'))"), @"0123456789abcdef");
 
-            assert_snapshot!(c.s(func, "%_decode(%(''))"), @"");
-            assert_snapshot!(c.s(func, "%_decode(%(x''))"), @"");
-            assert_snapshot!(c.s(func, "%_decode(%('a'))"), @"61");
-            assert_snapshot!(c.s(func, "%_decode(%(x'00'))"), @"00");
-            assert_snapshot!(c.s(func, "%_decode(%('123456789'))"), @"313233343536373839");
-            assert_snapshot!(c.s(func, "%_decode(%(x'0123456789abcdef'))"), @"0123456789abcdef");
-
-            assert_snapshot!(c.bool(func, "%_test(%(x'0123456789abcdef'))"), @"true");
-        );
-    }
+        assert_snapshot!(c.bool(func, "%_test(%(x'0123456789abcdef'))"), @"true");
+    );
 }
 
 #[test]
 #[cfg(feature = "gzip")]
 fn gzip() {
-    let c = Conn::new();
+    let c = Conn::default();
     assert_snapshot!(c.s("gzip", "%('')"), @"1f8b08000000000000ff03000000000000000000");
     assert_snapshot!(c.s("gzip", "%(x'')"), @"1f8b08000000000000ff03000000000000000000");
     assert_snapshot!(c.s("gzip", "%('a')"), @"1f8b08000000000000ff4b040043beb7e801000000");
@@ -106,7 +97,7 @@ fn gzip() {
 #[test]
 #[cfg(feature = "brotli")]
 fn brotli() {
-    let c = Conn::new();
+    let c = Conn::default();
     assert_snapshot!(c.s("brotli", "%('')"), @"3b");
     assert_snapshot!(c.s("brotli", "%(x'')"), @"3b");
     assert_snapshot!(c.s("brotli", "%('a')"), @"0b00806103");

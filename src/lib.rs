@@ -1,5 +1,4 @@
 #![cfg_attr(feature = "default", doc = include_str!("../README.md"))]
-#![forbid(unsafe_code)]
 
 #[cfg(not(any(feature = "gzip", feature = "brotli",)))]
 compile_error!("At least one of the features `gzip`, or `brotli` must be enabled.");
