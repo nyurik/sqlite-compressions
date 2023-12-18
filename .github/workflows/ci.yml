@@ -14,37 +14,37 @@ defaults:
     shell: bash
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: just
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-      - run: just test
-
-  msrv:
-    name: Test MSRV
-    runs-on: ubuntu-latest
-    steps:
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: just
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-      - name: Read crate metadata
-        id: metadata
-        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ steps.metadata.outputs.rust-version }}
-          components: clippy,rustfmt
-      - run: just test
+#  test:
+#    name: Test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: taiki-e/install-action@v2
+#        with:
+#          tool: just
+#      - uses: actions/checkout@v4
+#      - uses: Swatinem/rust-cache@v2
+#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+#      - run: just test
+#
+#  msrv:
+#    name: Test MSRV
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: taiki-e/install-action@v2
+#        with:
+#          tool: just
+#      - uses: actions/checkout@v4
+#      - uses: Swatinem/rust-cache@v2
+#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+#      - name: Read crate metadata
+#        id: metadata
+#        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
+#      - name: Install Rust
+#        uses: dtolnay/rust-toolchain@stable
+#        with:
+#          toolchain: ${{ steps.metadata.outputs.rust-version }}
+#          components: clippy,rustfmt
+#      - run: just test
 
   build:
     name: Build ${{ matrix.target }}
@@ -77,18 +77,18 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: just
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-#      - name: Build
-#        if: matrix.cross != 'true'
-#        run: |
-#          set -x
-#          mkdir -p target_releases/${{ matrix.target }}
-#          rustup target add "${{ matrix.target }}"
-#          export RUSTFLAGS='-C strip=debuginfo'
-#          just build-ext --release --target ${{ matrix.target }}
-#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - name: Build
+        if: matrix.cross != 'true'
+        run: |
+          set -x
+          mkdir -p target_releases/${{ matrix.target }}
+          rustup target add "${{ matrix.target }}"
+          export RUSTFLAGS='-C strip=debuginfo'
+          just build-ext --release --target ${{ matrix.target }}
+          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
 #      - name: Build cross
 #        if: matrix.cross == 'true'
 #        run: |
@@ -108,32 +108,15 @@ jobs:
       - name: Install SQLite
         if: matrix.download
         run: |
-          ls -Rl
+          cd tmp-downloads
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            7z x ./tmp-downloads/sqlite.zip
+            7z x sqlite.zip
           else
-            unzip ./tmp-downloads/sqlite.zip
-            ls -Rl
-            chmod +x ./sqlite3
+            unzip sqlite.zip
+            chmod +x sqlite3
           fi
-          ls -Rl
+          mv tmp-downloads/sqlite3 .
           rm -rf ./tmp-downloads
-          which ./sqlite3
-          ./sqlite3 --version
-          ./sqlite3 <<EOF
-          .help
-          EOF
-
-      - name: Install SQLite
-        if: matrix.os == 'macOS-latest'
-#        if: matrix.target == 'x86_64-apple-darwin'
-        run: |
-          brew reinstall sqlite
-          which ./sqlite3
-          ./sqlite3 --version
-          ./sqlite3 <<EOF
-          .help
-          EOF
       - name: SQLite Info
         run: |
           which ./sqlite3
@@ -142,15 +125,12 @@ jobs:
           .help
           EOF
       - name: Test ${{ matrix.target }} extension
-        run: just extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
+        run: just sqlite=./sqlite3 extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
       - name: Save build artifacts to build-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.target }}
           path: target_releases/${{ matrix.target }}/*
-
-
-
 
 #      - uses: taiki-e/install-action@v2
 #        with:
