@@ -50,7 +50,7 @@ jobs:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
-#      fail-fast: true
+#      fail-fast:3 true
       fail-fast: false
       matrix:
         include:
@@ -77,18 +77,18 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: just
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-      - name: Build
-        if: matrix.cross != 'true'
-        run: |
-          set -x
-          mkdir -p target_releases/${{ matrix.target }}
-          rustup target add "${{ matrix.target }}"
-          export RUSTFLAGS='-C strip=debuginfo'
-          just build-ext --release --target ${{ matrix.target }}
-          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+#      - uses: actions/checkout@v4
+#      - uses: Swatinem/rust-cache@v2
+#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+#      - name: Build
+#        if: matrix.cross != 'true'
+#        run: |
+#          set -x
+#          mkdir -p target_releases/${{ matrix.target }}
+#          rustup target add "${{ matrix.target }}"
+#          export RUSTFLAGS='-C strip=debuginfo'
+#          just build-ext --release --target ${{ matrix.target }}
+#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
 #      - name: Build cross
 #        if: matrix.cross == 'true'
 #        run: |
@@ -103,18 +103,19 @@ jobs:
         uses: carlosperate/download-file-action@v2
         with:
           file-url: '${{ matrix.download }}'
+          name: sqlite.zip
       - name: Install SQLite
-        if: runner.download
+        if: matrix.download
         run: |
+          ls -Rl
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            7z x '${{ matrix.download }}'
+            7z x sqlite.zip
           else
-            unzip '${{ matrix.download }}'
+            unzip sqlite.zip
             ls
             chmod +x sqlite3
           fi
-          mv sqlite-tools-win-x64-3440200/sqlite3.exe .
-          rm -rf sqlite-tools-win-x64-3440200
+          ls -Rl
           which sqlite3
           sqlite3 --version
           sqlite3 <<EOF
