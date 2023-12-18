@@ -100,9 +100,9 @@ jobs:
             7z x sqlite.zip
           else
             unzip sqlite.zip
-            chmod +x sqlite3
+            chmod +x ${{ matrix.sqlite3 }}
           fi
-          mv ${{ matrix.sqlite3 }} .
+          mv ${{ matrix.sqlite3 }} ..
           cd ..
           rm -rf ./tmp-downloads
       - name: SQLite Info
