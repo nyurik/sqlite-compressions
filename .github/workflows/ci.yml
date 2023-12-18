@@ -56,12 +56,15 @@ jobs:
         include:
           - target: aarch64-apple-darwin
             file: libsqlite_compressions.dylib
+            download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
             os: macOS-latest
           - target: x86_64-apple-darwin
             file: libsqlite_compressions.dylib
+            download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
             os: macOS-latest
           - target: x86_64-pc-windows-msvc
             file: 'sqlite_compressions.dll'
+            download: 'https://www.sqlite.org/2023/sqlite-tools-win-x64-3440200.zip'
             os: windows-latest
 #          - target: aarch64-unknown-linux-gnu
 #            file: libsqlite_compressions.so
@@ -102,6 +105,29 @@ jobs:
           sqlite3 <<EOF
           .help
           EOF
+      - name: Download SQLite
+        if: matrix.download
+        uses: carlosperate/download-file-action@v2
+        with:
+          file-url: matrix.download
+      - name: Install SQLite
+        if: runner.download
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            7z x '${{ matrix.download }}'
+          else
+            unzip '${{ matrix.download }}'
+            ls
+            chmod +x sqlite3
+          fi
+          mv sqlite-tools-win-x64-3440200/sqlite3.exe .
+          rm -rf sqlite-tools-win-x64-3440200
+          which sqlite3
+          sqlite3 --version
+          sqlite3 <<EOF
+          .help
+          EOF
+
       - name: Install SQLite
         if: matrix.os == 'macOS-latest'
 #        if: matrix.target == 'x86_64-apple-darwin'
