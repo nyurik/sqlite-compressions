@@ -1,7 +1,7 @@
 #!/usr/bin/env just --justfile
 
 extension_file := './target/debug/examples/libsqlite_compressions.so'
-extension_path := './target/debug/examples/libsqlite_compressions.so'
+extension_path := extension_file
 
 @_default:
     just --list --unsorted
