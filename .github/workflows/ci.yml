@@ -110,32 +110,28 @@ jobs:
         if: matrix.cross != 'true'
         run: |
           set -x
-          mkdir -p target_releases/${{ matrix.target }}
           rustup target add "${{ matrix.target }}"
           export RUSTFLAGS='-C strip=debuginfo'
           just build-ext --release --target ${{ matrix.target }}
-          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
-          ls -lR target_releases/
+          mkdir -p target/files
       - name: Test ${{ matrix.target }} extension
         if: matrix.target != 'aarch64-apple-darwin'
-        run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
+        run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target/${{ matrix.target }}/release/examples/${{ matrix.file }} test-ext
+      - name: Package
+        run: |
+          pushd target/${{ matrix.target }}/release/examples
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            7z a ../../../files/sqlite-compressions-${{ matrix.target }}.zip ${{ matrix.file }}
+          else
+            tar czvf ../../../files/sqlite-compressions-${{ matrix.target }}.tar.gz ${{ matrix.file }}
+          fi
+          popd
+          ls -lR target/files
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           files: 'target_releases/*'
-#          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-#      - uses: taiki-e/install-action@v2
-#        with:
-#          tool: cargo-deb
-#      - name: Build Debian package (.deb)
-#        run: |
-#          set -x
-#          cargo deb -v --output target/debian/debian-x86_64.deb
-#          mkdir -p target_releases
-#          mv target/debian/debian-x86_64.deb target_releases/
