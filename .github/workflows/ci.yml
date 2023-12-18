@@ -9,6 +9,13 @@ on:
     types: [published]
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
+env:
+  EXT_BUILD_CMD: '--release --example sqlite_compressions --no-default-features --features loadable_extension,gzip,brotli'
+
 jobs:
   build:
     name: Build
@@ -17,18 +24,61 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
       - run: source .cargo-husky/hooks/pre-push
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+#      - name: Build x86_64-unknown-linux-gnu ext
+#        run: |
+#          set -x
+#          mkdir -p target_releases/x86_64-unknown-linux-gnu
+#          cargo build $EXT_BUILD_CMD
+#          mv target/release/examples/libsqlite_compressions.so target_releases/x86_64-unknown-linux-gnu
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deb
+#      - name: Build Debian package (.deb)
+#        run: |
+#          set -x
+#          cargo deb -v --output target/debian/debian-x86_64.deb
+#          mkdir -p target_releases
+#          mv target/debian/debian-x86_64.deb target_releases/
+      - name: Save build artifacts to build-${{ matrix.target }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-build
+          path: target_releases/*
 
-  msrv:
-    name: Build with MSRV
-    runs-on: ubuntu-latest
+  build-matrix:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+#      fail-fast: true
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macOS-latest
+            file: 'libsqlite_compressions.dylib'
+          - target: x86_64-apple-darwin
+            os: macOS-latest
+            file: 'libsqlite_compressions.dylib'
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            file: 'sqlite_compressions.dll'
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            file: 'libsqlite_compressions.so'
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
-      - name: Read crate metadata
-        id: metadata
-        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - name: Build
+        run: |
+          set -x
+          mkdir -p target_releases/${{ matrix.target }}
+          rustup target add "${{ matrix.target }}"
+          export RUSTFLAGS='-C strip=debuginfo'
+          cargo build --target ${{ matrix.target }} $EXT_BUILD_CMD
+          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+      - name: Save build artifacts to build-${{ matrix.target }}
+        uses: actions/upload-artifact@v3
         with:
-          toolchain: ${{ steps.metadata.outputs.rust-version }}
-      - run: cargo test
+          name: build-${{ matrix.target }}
+          path: target_releases/${{ matrix.target }}/*
