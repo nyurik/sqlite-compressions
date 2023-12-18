@@ -58,21 +58,26 @@ jobs:
             file: libsqlite_compressions.dylib
             download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
             os: macOS-latest
+            sqlite3: ./sqlite3
           - target: x86_64-apple-darwin
             file: libsqlite_compressions.dylib
             download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
             os: macOS-latest
+            sqlite3: ./sqlite3
           - target: x86_64-pc-windows-msvc
             file: 'sqlite_compressions.dll'
             download: 'https://www.sqlite.org/2023/sqlite-tools-win-x64-3440200.zip'
             os: windows-latest
+            sqlite3: ./sqlite3
 #          - target: aarch64-unknown-linux-gnu
 #            file: libsqlite_compressions.so
 #            os: ubuntu-latest
+#            sqlite3: ./sqlite3
 #            cross: true
           - target: x86_64-unknown-linux-gnu
             file: libsqlite_compressions.so
             os: ubuntu-latest
+            sqlite3: sqlite3
     steps:
       - uses: taiki-e/install-action@v2
         with:
@@ -119,13 +124,13 @@ jobs:
           rm -rf ./tmp-downloads
       - name: SQLite Info
         run: |
-          which ./sqlite3
-          ./sqlite3 --version
-          ./sqlite3 <<EOF
+          which ${{ matrix.sqlite3 }}
+          ${{ matrix.sqlite3 }} --version
+          ${{ matrix.sqlite3 }} <<EOF
           .help
           EOF
       - name: Test ${{ matrix.target }} extension
-        run: just sqlite=./sqlite3 extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
+        run: just sqlite=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
       - name: Save build artifacts to build-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
