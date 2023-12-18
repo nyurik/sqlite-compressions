@@ -13,40 +13,40 @@ defaults:
   run:
     shell: bash
 
-env:
-  EXT_BUILD_CMD: '--release --example sqlite_compressions --no-default-features --features loadable_extension,gzip,brotli'
-
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - run: source .cargo-husky/hooks/pre-push
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-#      - name: Build x86_64-unknown-linux-gnu ext
-#        run: |
-#          set -x
-#          mkdir -p target_releases/x86_64-unknown-linux-gnu
-#          cargo build $EXT_BUILD_CMD
-#          mv target/release/examples/libsqlite_compressions.so target_releases/x86_64-unknown-linux-gnu
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-deb
-#      - name: Build Debian package (.deb)
-#        run: |
-#          set -x
-#          cargo deb -v --output target/debian/debian-x86_64.deb
-#          mkdir -p target_releases
-#          mv target/debian/debian-x86_64.deb target_releases/
-      - name: Save build artifacts to build-${{ matrix.target }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: cross-build
-          path: target_releases/*
+          tool: just
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - run: just test
 
-  build-matrix:
+  msrv:
+    name: Test MSRV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - name: Read crate metadata
+        id: metadata
+        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ steps.metadata.outputs.rust-version }}
+          components: clippy,rustfmt
+      - run: just test
+
+  build:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -54,18 +54,24 @@ jobs:
       matrix:
         include:
           - target: aarch64-apple-darwin
-            os: macOS-latest
             file: 'libsqlite_compressions.dylib'
+            os: macOS-latest
           - target: x86_64-apple-darwin
-            os: macOS-latest
             file: 'libsqlite_compressions.dylib'
+            os: macOS-latest
           - target: x86_64-pc-windows-msvc
-            os: windows-latest
             file: 'sqlite_compressions.dll'
+            os: windows-latest
+#          - target: aarch64-unknown-linux-gnu
+#            file: 'libsqlite_compressions.so'
+#            os: ubuntu-latest
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
             file: 'libsqlite_compressions.so'
+            os: ubuntu-latest
     steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
@@ -75,10 +81,25 @@ jobs:
           mkdir -p target_releases/${{ matrix.target }}
           rustup target add "${{ matrix.target }}"
           export RUSTFLAGS='-C strip=debuginfo'
-          cargo build --target ${{ matrix.target }} $EXT_BUILD_CMD
+          just build-ext --release --target ${{ matrix.target }}
           mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+      - name: Test ${{ matrix.target }} extension
+        run: just extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
       - name: Save build artifacts to build-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.target }}
           path: target_releases/${{ matrix.target }}/*
+
+
+
+
+#      - uses: taiki-e/install-action@v2
+#        with:
+#          tool: cargo-deb
+#      - name: Build Debian package (.deb)
+#        run: |
+#          set -x
+#          cargo deb -v --output target/debian/debian-x86_64.deb
+#          mkdir -p target_releases
+#          mv target/debian/debian-x86_64.deb target_releases/
