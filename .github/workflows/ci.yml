@@ -85,24 +85,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-      - name: Build
-        if: matrix.cross != 'true'
-        run: |
-          set -x
-          mkdir -p target_releases/${{ matrix.target }}
-          rustup target add "${{ matrix.target }}"
-          export RUSTFLAGS='-C strip=debuginfo'
-          just build-ext --release --target ${{ matrix.target }}
-          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
-#      - name: Build cross
-#        if: matrix.cross == 'true'
-#        run: |
-#          set -x
-#          mkdir -p target_releases/${{ matrix.target }}
-#          rustup target add "${{ matrix.target }}"
-#          export RUSTFLAGS='-C strip=debuginfo'
-#          just build-ext --release --target ${{ matrix.target }}
-#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
       - name: Download SQLite
         if: matrix.download
         uses: carlosperate/download-file-action@v2
@@ -129,8 +111,26 @@ jobs:
           ${{ matrix.sqlite3 }} <<EOF
           .help
           EOF
+      - name: Build
+        if: matrix.cross != 'true'
+        run: |
+          set -x
+          mkdir -p target_releases/${{ matrix.target }}
+          rustup target add "${{ matrix.target }}"
+          export RUSTFLAGS='-C strip=debuginfo'
+          just build-ext --release --target ${{ matrix.target }}
+          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+#      - name: Build cross
+#        if: matrix.cross == 'true'
+#        run: |
+#          set -x
+#          mkdir -p target_releases/${{ matrix.target }}
+#          rustup target add "${{ matrix.target }}"
+#          export RUSTFLAGS='-C strip=debuginfo'
+#          just build-ext --release --target ${{ matrix.target }}
+#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
       - name: Test ${{ matrix.target }} extension
-        run: just sqlite=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
+        run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
       - name: Save build artifacts to build-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
