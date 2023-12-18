@@ -68,7 +68,7 @@ jobs:
             file: 'sqlite_compressions.dll'
             download: 'https://www.sqlite.org/2023/sqlite-tools-win-x64-3440200.zip'
             os: windows-latest
-            sqlite3: ./sqlite3
+            sqlite3: ./sqlite3.exe
 #          - target: aarch64-unknown-linux-gnu
 #            file: libsqlite_compressions.so
 #            os: ubuntu-latest
@@ -120,7 +120,7 @@ jobs:
             unzip sqlite.zip
             chmod +x sqlite3
           fi
-          mv tmp-downloads/sqlite3 .
+          mv tmp-downloads/${{ matrix.sqlite3 }} .
           rm -rf ./tmp-downloads
       - name: SQLite Info
         run: |
