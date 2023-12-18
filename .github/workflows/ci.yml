@@ -98,18 +98,11 @@ jobs:
 #          export RUSTFLAGS='-C strip=debuginfo'
 #          just build-ext --release --target ${{ matrix.target }}
 #          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
-      - name: SQLite Info
-        run: |
-          which sqlite3
-          sqlite3 --version
-          sqlite3 <<EOF
-          .help
-          EOF
       - name: Download SQLite
         if: matrix.download
         uses: carlosperate/download-file-action@v2
         with:
-          file-url: matrix.download
+          file-url: '${{ matrix.download }}'
       - name: Install SQLite
         if: runner.download
         run: |
@@ -133,6 +126,13 @@ jobs:
 #        if: matrix.target == 'x86_64-apple-darwin'
         run: |
           brew reinstall sqlite
+          which sqlite3
+          sqlite3 --version
+          sqlite3 <<EOF
+          .help
+          EOF
+      - name: SQLite Info
+        run: |
           which sqlite3
           sqlite3 --version
           sqlite3 <<EOF
