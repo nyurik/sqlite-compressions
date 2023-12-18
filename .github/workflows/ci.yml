@@ -104,21 +104,23 @@ jobs:
         with:
           file-url: '${{ matrix.download }}'
           file-name: sqlite.zip
+          location: ./tmp-downloads
       - name: Install SQLite
         if: matrix.download
         run: |
           ls -Rl
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            7z x sqlite.zip
+            7z x ./tmp-downloads/sqlite.zip
           else
-            unzip sqlite.zip
-            ls
-            chmod +x sqlite3
+            unzip ./tmp-downloads/sqlite.zip
+            ls -Rl
+            chmod +x ./sqlite3
           fi
           ls -Rl
-          which sqlite3
-          sqlite3 --version
-          sqlite3 <<EOF
+          rm -rf ./tmp-downloads
+          which ./sqlite3
+          ./sqlite3 --version
+          ./sqlite3 <<EOF
           .help
           EOF
 
@@ -127,16 +129,16 @@ jobs:
 #        if: matrix.target == 'x86_64-apple-darwin'
         run: |
           brew reinstall sqlite
-          which sqlite3
-          sqlite3 --version
-          sqlite3 <<EOF
+          which ./sqlite3
+          ./sqlite3 --version
+          ./sqlite3 <<EOF
           .help
           EOF
       - name: SQLite Info
         run: |
-          which sqlite3
-          sqlite3 --version
-          sqlite3 <<EOF
+          which ./sqlite3
+          ./sqlite3 --version
+          ./sqlite3 <<EOF
           .help
           EOF
       - name: Test ${{ matrix.target }} extension

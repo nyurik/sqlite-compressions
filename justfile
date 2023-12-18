@@ -2,6 +2,7 @@
 
 extension_file := './target/debug/examples/libsqlite_compressions.so'
 extension_path := extension_file
+sqlite3 := 'sqlite3'
 
 @_default:
     just --list --unsorted
@@ -84,12 +85,12 @@ test-one-lib *ARGS:
 is-sqlite3-available:
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "Check if sqlite3 executable exists"
-    if ! command -v sqlite3 &> /dev/null; then
-        echo "sqlite3 executable could not be found"
+    echo "Check if {{ sqlite3 }} executable exists"
+    if ! command -v {{ sqlite3 }} &> /dev/null; then
+        echo "{{ sqlite3 }} executable could not be found"
         exit 1
     fi
-    sqlite3 --version
+    {{ sqlite3 }} --version
 
 [private]
 test-one-ext SQL EXPECTED:
@@ -102,7 +103,7 @@ test-one-ext SQL EXPECTED:
     echo "Loading {{ quote(extension_path) }} from {{ quote(extension_file) }}"
     echo "And trying to get  '{{ EXPECTED }}'  from  {{ SQL }}"
 
-    RESULT=$(sqlite3 <<EOF
+    RESULT=$({{ sqlite3 }} <<EOF
     .log stderr
     .load {{ quote(extension_path) }}
     {{ SQL }}
