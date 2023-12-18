@@ -94,11 +94,15 @@ is-sqlite3-available:
 test-one-ext SQL EXPECTED:
     #!/usr/bin/env bash
     set -euo pipefail
+    if [[ ! -f {{ quote(extension_file) }} ]]; then
+        echo "Extension file {{ quote(extension_file) }} does not exist. Run 'just build-ext' first."
+        exit 1
+    fi
     echo "Expecting '{{ EXPECTED }}'  from  {{ SQL }}"
 
     RESULT=$(sqlite3 <<EOF
     .log stderr
-    .load '{{ extension_file }}'
+    .load {{ quote(extension_file) }}
     {{ SQL }}
     EOF
     )

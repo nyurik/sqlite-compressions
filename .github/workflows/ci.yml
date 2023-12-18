@@ -65,6 +65,7 @@ jobs:
 #          - target: aarch64-unknown-linux-gnu
 #            file: 'libsqlite_compressions.so'
 #            os: ubuntu-latest
+#            cross: true
           - target: x86_64-unknown-linux-gnu
             file: 'libsqlite_compressions.so'
             os: ubuntu-latest
@@ -76,6 +77,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
       - name: Build
+        if: matrix.cross != 'true'
         run: |
           set -x
           mkdir -p target_releases/${{ matrix.target }}
@@ -83,6 +85,29 @@ jobs:
           export RUSTFLAGS='-C strip=debuginfo'
           just build-ext --release --target ${{ matrix.target }}
           mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+#      - name: Build cross
+#        if: matrix.cross == 'true'
+#        run: |
+#          set -x
+#          mkdir -p target_releases/${{ matrix.target }}
+#          rustup target add "${{ matrix.target }}"
+#          export RUSTFLAGS='-C strip=debuginfo'
+#          just build-ext --release --target ${{ matrix.target }}
+#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+      - name: Install SQLite
+        if: matrix.target == 'x86_64-apple-darwin'
+        run: |
+          which sqlite3
+          sqlite3 --version
+          sqlite3 <<EOF
+          .help
+          EOF
+          brew reinstall sqlite
+          which sqlite3
+          sqlite3 --version
+          sqlite3 <<EOF
+          .help
+          EOF
       - name: Test ${{ matrix.target }} extension
         run: just extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
       - name: Save build artifacts to build-${{ matrix.target }}
