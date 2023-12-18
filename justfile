@@ -8,6 +8,14 @@ clean:
     cargo clean
     rm -f Cargo.lock
 
+build: build-lib build-loadable
+
+build-lib:
+    cargo build --workspace --all-targets --bins --tests --lib --benches
+
+build-loadable:
+    cargo build --example sqlite_compressions --no-default-features --features "loadable_extension,gzip,brotli"
+
 # Run cargo fmt and cargo clippy
 lint: fmt clippy
 
@@ -17,7 +25,7 @@ fmt:
 
 # Run cargo clippy
 clippy:
-    cargo clippy --workspace --all-targets --bins --tests --lib --benches -- -D warnings
+    cargo clippy --workspace --all-targets --bins --tests --lib --benches --examples -- -D warnings
 
 # Build and open code documentation
 docs:
@@ -33,7 +41,7 @@ test-doc:
 
 # Run integration tests and save its output as the new expected output
 bless *ARGS: (cargo-install "insta" "cargo-insta")
-    cargo insta test --accept --unreferenced=auto --all-features {{ ARGS }}
+    cargo insta test --accept --unreferenced=auto {{ ARGS }}
 
 # Check if a certain Cargo command is installed, and install it if needed
 [private]

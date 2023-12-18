@@ -1,4 +1,7 @@
 #![cfg_attr(feature = "default", doc = include_str!("../README.md"))]
+//
+// Unsafe code is required for cdylib, so only use it for this crate
+#![forbid(unsafe_code)]
 
 #[cfg(not(any(feature = "gzip", feature = "brotli",)))]
 compile_error!("At least one of the features `gzip`, or `brotli` must be enabled.");

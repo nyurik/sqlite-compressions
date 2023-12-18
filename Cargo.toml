@@ -1,6 +1,6 @@
 [package]
 name = "sqlite-compressions"
-version = "0.1.2"  # This value is also used in the README.md
+version = "0.2.0"  # This value is also used in the README.md
 description = "Compression, decompression, and testing functions for SQLite: gzip, brotli, ..."
 authors = ["Yuri Astrakhan <YuriAstrakhan@gmail.com>"]
 repository = "https://github.com/nyurik/sqlite-compressions"
@@ -10,11 +10,25 @@ keywords = ["sqlite", "compression", "rusqlite", "gzip", "brotli"]
 categories = ["database", "compression"]
 rust-version = "1.65.0"
 
+[lib]
+name = "sqlite_compressions"
+
+# Loadable extenios is a cdylib (lib), but Rust does not allow multiple libs per crate, so using an example instead.
+[[example]]
+name = "sqlite_compressions"
+path = "src/cdylib/cdylib.rs"
+crate-type = ["cdylib"]
+required-features = ["loadable_extension"]
+
 [features]
 default = ["trace", "gzip", "brotli"]
 #
 # Enable Trace Logging
 trace = ["dep:log"]
+#
+# Build loadable extension. Not compatible with the window feature.
+# See https://github.com/rusqlite/rusqlite/discussions/1423
+loadable_extension = ["rusqlite/loadable_extension", "rusqlite/trace"]
 #
 # Encoding algorithms
 gzip = ["dep:flate2"]
@@ -36,9 +50,12 @@ rstest = "0.18"
 
 [lints.rust]
 unused_qualifications = "warn"
-unsafe_code = "deny"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 missing_errors_doc = "allow"
 module_name_repetitions = "allow"
+
+#[patch.crates-io]
+#rusqlite = { path = "../rusqlite" }
+#libsqlite3-sys = { path = "../rusqlite/libsqlite3-sys" }

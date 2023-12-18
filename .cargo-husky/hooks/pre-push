@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -euo pipefail
 #
 # See https://github.com/rhysd/cargo-husky#readme
 #
@@ -9,15 +10,13 @@ echo "The following steps are also ran during   git push   command."
 echo "If you want to push your changes without running CI, use   git push --no-verify"
 echo "-------------------------------------------------------------------------------"
 
-set -ex
-
+set -x
 export RUSTFLAGS='-D warnings'
-
 rustc --version
 cargo --version
 cargo fmt --all -- --check
 cargo build
-cargo test --workspace --all-targets --all-features --bins --tests --lib --benches
+cargo test --workspace --all-targets --bins --tests --lib --benches
 
 { set +x ;} 2> /dev/null
 for enc in "gzip" "brotli"; do
@@ -41,4 +40,46 @@ cargo test --doc
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 
 cargo clippy -- -D warnings
-cargo clippy --workspace --all-features --all-targets --bins --tests --lib --benches -- -D warnings
+cargo clippy --workspace --all-targets --bins --tests --lib --benches -- -D warnings
+cargo build --example sqlite_compressions --no-default-features --features "loadable_extension,gzip,brotli"
+{ set +x ;} 2> /dev/null
+
+echo "################################################################################################################################"
+echo "Run extension loading tests with the sqlite3 executable"
+if ! command -v sqlite3 &> /dev/null; then
+    echo "sqlite3 executable could not be found"
+    exit 1
+fi
+sqlite3 --version
+
+function test_sqlite3() {
+  local sql="$1"
+  local expected="$2"
+
+  echo "Expecting '$expected'  from  $sql"
+  local actual=$(sqlite3 <<EOF
+.log stderr
+.load './target/debug/examples/libsqlite_compressions'
+$sql
+EOF
+)
+
+  if [ "$actual" != "$expected" ]; then
+    echo "Failed to test_sqlite3: $sql"
+    echo "Expected: $expected"
+    echo "Actual:   $actual"
+    exit 1
+  fi
+}
+
+test_sqlite3  "SELECT hex(gzip('12345'));"             "1F8B08000000000000FF333432363105001C3AF5CB05000000"
+test_sqlite3  "SELECT gzip_decode(gzip('12345'));"     "12345"
+test_sqlite3  "SELECT gzip_decode(gzip('12345', 1));"  "12345"
+test_sqlite3  "SELECT gzip_decode(gzip('12345', 9));"  "12345"
+test_sqlite3  "SELECT gzip_test(gzip('12345'));"       "1"
+
+test_sqlite3  "SELECT hex(brotli('12345'));"               "0B0280313233343503"
+test_sqlite3  "SELECT brotli_decode(brotli('12345'));"     "12345"
+test_sqlite3  "SELECT brotli_decode(brotli('12345', 1));"  "12345"
+test_sqlite3  "SELECT brotli_decode(brotli('12345', 9));"  "12345"
+test_sqlite3  "SELECT gzip_test(gzip('12345'));"           "1"
