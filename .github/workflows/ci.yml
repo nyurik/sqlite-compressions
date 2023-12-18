@@ -14,44 +14,43 @@ defaults:
     shell: bash
 
 jobs:
-#  test:
-#    name: Test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: taiki-e/install-action@v2
-#        with:
-#          tool: just
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-#      - run: just test
-#
-#  msrv:
-#    name: Test MSRV
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: taiki-e/install-action@v2
-#        with:
-#          tool: just
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-#      - name: Read crate metadata
-#        id: metadata
-#        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
-#      - name: Install Rust
-#        uses: dtolnay/rust-toolchain@stable
-#        with:
-#          toolchain: ${{ steps.metadata.outputs.rust-version }}
-#          components: clippy,rustfmt
-#      - run: just test
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - run: just test
+
+  msrv:
+    name: Test MSRV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - name: Read crate metadata
+        id: metadata
+        run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ steps.metadata.outputs.rust-version }}
+          components: clippy,rustfmt
+      - run: just test
 
   build:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
-#      fail-fast:3 true
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - target: aarch64-apple-darwin
@@ -69,11 +68,6 @@ jobs:
             download: 'https://www.sqlite.org/2023/sqlite-tools-win-x64-3440200.zip'
             os: windows-latest
             sqlite3: ./sqlite3.exe
-#          - target: aarch64-unknown-linux-gnu
-#            file: libsqlite_compressions.so
-#            os: ubuntu-latest
-#            sqlite3: ./sqlite3
-#            cross: true
           - target: x86_64-unknown-linux-gnu
             file: libsqlite_compressions.so
             os: ubuntu-latest
@@ -102,7 +96,7 @@ jobs:
             unzip sqlite.zip
             chmod +x ${{ matrix.sqlite3 }}
           fi
-          mv ${{ matrix.sqlite3 }} ..
+          mv ${{ matrix.sqlite3 }} ../
           cd ..
           rm -rf ./tmp-downloads
       - name: SQLite Info
@@ -121,22 +115,19 @@ jobs:
           export RUSTFLAGS='-C strip=debuginfo'
           just build-ext --release --target ${{ matrix.target }}
           mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
-#      - name: Build cross
-#        if: matrix.cross == 'true'
-#        run: |
-#          set -x
-#          mkdir -p target_releases/${{ matrix.target }}
-#          rustup target add "${{ matrix.target }}"
-#          export RUSTFLAGS='-C strip=debuginfo'
-#          just build-ext --release --target ${{ matrix.target }}
-#          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
       - name: Test ${{ matrix.target }} extension
+        if: matrix.target != 'aarch64-apple-darwin'
         run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
-      - name: Save build artifacts to build-${{ matrix.target }}
-        uses: actions/upload-artifact@v3
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
         with:
-          name: build-${{ matrix.target }}
-          path: target_releases/${{ matrix.target }}/*
+          draft: true
+          files: 'target/files/*'
+#          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 #      - uses: taiki-e/install-action@v2
 #        with:
