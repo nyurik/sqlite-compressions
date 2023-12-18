@@ -51,23 +51,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
 #      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - target: aarch64-apple-darwin
-            file: 'libsqlite_compressions.dylib'
+            file: libsqlite_compressions.dylib
             os: macOS-latest
           - target: x86_64-apple-darwin
-            file: 'libsqlite_compressions.dylib'
+            file: libsqlite_compressions.dylib
             os: macOS-latest
           - target: x86_64-pc-windows-msvc
             file: 'sqlite_compressions.dll'
             os: windows-latest
 #          - target: aarch64-unknown-linux-gnu
-#            file: 'libsqlite_compressions.so'
+#            file: libsqlite_compressions.so
 #            os: ubuntu-latest
 #            cross: true
           - target: x86_64-unknown-linux-gnu
-            file: 'libsqlite_compressions.so'
+            file: libsqlite_compressions.so
             os: ubuntu-latest
     steps:
       - uses: taiki-e/install-action@v2
@@ -94,14 +95,17 @@ jobs:
 #          export RUSTFLAGS='-C strip=debuginfo'
 #          just build-ext --release --target ${{ matrix.target }}
 #          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
-      - name: Install SQLite
-        if: matrix.target == 'x86_64-apple-darwin'
+      - name: SQLite Info
         run: |
           which sqlite3
           sqlite3 --version
           sqlite3 <<EOF
           .help
           EOF
+      - name: Install SQLite
+        if: matrix.os == 'macOS-latest'
+#        if: matrix.target == 'x86_64-apple-darwin'
+        run: |
           brew reinstall sqlite
           which sqlite3
           sqlite3 --version
