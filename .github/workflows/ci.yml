@@ -115,6 +115,7 @@ jobs:
           export RUSTFLAGS='-C strip=debuginfo'
           just build-ext --release --target ${{ matrix.target }}
           mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+          ls -l target_releases/
       - name: Test ${{ matrix.target }} extension
         if: matrix.target != 'aarch64-apple-darwin'
         run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
@@ -123,7 +124,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
-          files: 'target/files/*'
+          files: 'target_releases/*'
 #          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
