@@ -103,7 +103,7 @@ jobs:
         uses: carlosperate/download-file-action@v2
         with:
           file-url: '${{ matrix.download }}'
-          name: sqlite.zip
+          file-name: sqlite.zip
       - name: Install SQLite
         if: matrix.download
         run: |
