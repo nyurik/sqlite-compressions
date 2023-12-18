@@ -9,21 +9,33 @@ on:
     types: [published]
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
-      - run: source .cargo-husky/hooks/pre-push
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - run: just test
 
   msrv:
-    name: Build with MSRV
+    name: Test MSRV
     runs-on: ubuntu-latest
     steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
       - name: Read crate metadata
         id: metadata
         run: echo "rust-version=$(sed -ne 's/rust-version *= *\"\(.*\)\"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
@@ -31,4 +43,99 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ steps.metadata.outputs.rust-version }}
-      - run: cargo test
+          components: clippy,rustfmt
+      - run: just test
+
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            file: libsqlite_compressions.dylib
+            download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
+            os: macOS-latest
+            sqlite3: ./sqlite3
+          - target: x86_64-apple-darwin
+            file: libsqlite_compressions.dylib
+            download: 'https://www.sqlite.org/2023/sqlite-tools-osx-x64-3440200.zip'
+            os: macOS-latest
+            sqlite3: ./sqlite3
+          - target: x86_64-pc-windows-msvc
+            file: 'sqlite_compressions.dll'
+            download: 'https://www.sqlite.org/2023/sqlite-tools-win-x64-3440200.zip'
+            os: windows-latest
+            sqlite3: ./sqlite3.exe
+          - target: x86_64-unknown-linux-gnu
+            file: libsqlite_compressions.so
+            os: ubuntu-latest
+            sqlite3: sqlite3
+    steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
+      - name: Download SQLite
+        if: matrix.download
+        uses: carlosperate/download-file-action@v2
+        with:
+          file-url: '${{ matrix.download }}'
+          file-name: sqlite.zip
+          location: ./tmp-downloads
+      - name: Install SQLite
+        if: matrix.download
+        run: |
+          cd tmp-downloads
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            7z x sqlite.zip
+          else
+            unzip sqlite.zip
+            chmod +x ${{ matrix.sqlite3 }}
+          fi
+          mv ${{ matrix.sqlite3 }} ../
+          cd ..
+          rm -rf ./tmp-downloads
+      - name: SQLite Info
+        run: |
+          which ${{ matrix.sqlite3 }}
+          ${{ matrix.sqlite3 }} --version
+          ${{ matrix.sqlite3 }} <<EOF
+          .help
+          EOF
+      - name: Build
+        if: matrix.cross != 'true'
+        run: |
+          set -x
+          mkdir -p target_releases/${{ matrix.target }}
+          rustup target add "${{ matrix.target }}"
+          export RUSTFLAGS='-C strip=debuginfo'
+          just build-ext --release --target ${{ matrix.target }}
+          mv target/${{ matrix.target }}/release/examples/${{ matrix.file }} target_releases/${{ matrix.target }}
+          ls -l target_releases/
+      - name: Test ${{ matrix.target }} extension
+        if: matrix.target != 'aarch64-apple-darwin'
+        run: just sqlite3=${{ matrix.sqlite3 }} extension_file=target_releases/${{ matrix.target }}/${{ matrix.file }} test-ext
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: 'target_releases/*'
+#          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+#      - uses: taiki-e/install-action@v2
+#        with:
+#          tool: cargo-deb
+#      - name: Build Debian package (.deb)
+#        run: |
+#          set -x
+#          cargo deb -v --output target/debian/debian-x86_64.deb
+#          mkdir -p target_releases
+#          mv target/debian/debian-x86_64.deb target_releases/
