@@ -1,6 +1,7 @@
 #!/usr/bin/env just --justfile
 
-extension_file := './target/debug/examples/libsqlite_compressions'
+extension_file := './target/debug/examples/libsqlite_compressions.so'
+extension_path := './target/debug/examples/libsqlite_compressions.so'
 
 @_default:
     just --list --unsorted
@@ -98,11 +99,12 @@ test-one-ext SQL EXPECTED:
         echo "Extension file {{ quote(extension_file) }} does not exist. Run 'just build-ext' first."
         exit 1
     fi
-    echo "Expecting '{{ EXPECTED }}'  from  {{ SQL }}"
+    echo "Loading {{ quote(extension_path) }} from {{ quote(extension_file) }}"
+    echo "And trying to get  '{{ EXPECTED }}'  from  {{ SQL }}"
 
     RESULT=$(sqlite3 <<EOF
     .log stderr
-    .load {{ quote(extension_file) }}
+    .load {{ quote(extension_path) }}
     {{ SQL }}
     EOF
     )
