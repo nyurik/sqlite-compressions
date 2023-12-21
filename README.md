@@ -16,11 +16,11 @@ This crate uses [rusqlite](https://crates.io/crates/rusqlite) to add user-define
 For each compression name, this crate provides encoding `<...>(data, [quality])`, decoding `<...>_decode(data)`, and testing `<...>_test(data)` functions. For example, for `GZIP` it would create `gzip`, `gzip_decode`, and `gzip_test`. Both encoding and decoding return blobs, and the testing function returns a boolean.  The encoding functions can encode text and blob values, but will raise an error on other types like integers and floating point numbers. All functions will return `NULL` if the input data is `NULL`.
 
 ### Extension
-To use as an extension, load the `sqlite_compressions.so` shared library into SQLite (works with `gzip` and `brotli`).
+To use as an extension, load the `libsqlite_compressions.so` shared library into SQLite (works with `gzip` and `brotli`).
 
 ```bash
 $ sqlite3
-sqlite> .load sqlite_compressions.so
+sqlite> .load ./libsqlite_compressions
 sqlite> SELECT hex(brotli('Hello world!'));
 8B058048656C6C6F20776F726C642103
 sqlite> SELECT brotli_decode(x'8B058048656C6C6F20776F726C642103');
