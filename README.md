@@ -9,14 +9,14 @@
 
 Implement SQLite compression, decompression, and testing functions for Brotli and gzip encodings. Functions are available as a loadable extension, or as a Rust library.
 
-This crate uses [rusqlite](https://crates.io/crates/rusqlite) to add user-defined functions using static linking.
+See also a similar [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV1a, XXHASH hashing functions.
 
 ## Usage
 
-For each compression name, this crate provides encoding `<...>(data, [quality])`, decoding `<...>_decode(data)`, and testing `<...>_test(data)` functions. For example, for `GZIP` it would create `gzip`, `gzip_decode`, and `gzip_test`. Both encoding and decoding return blobs, and the testing function returns a boolean.  The encoding functions can encode text and blob values, but will raise an error on other types like integers and floating point numbers. All functions will return `NULL` if the input data is `NULL`.
+This SQLite extension adds functions for brotli and gzip compressions like `gzip(data, [quality])`, decoding `gzip_decode(data)`, and testing `gzip_test(data)` functions. Both encoding and decoding return blobs, and the testing function returns a true/false.  The encoding functions can encode text and blob values, but will raise an error on other types like integers and floating point numbers. All functions will return `NULL` if the input data is `NULL`.
 
 ### Extension
-To use as an extension, load the `libsqlite_compressions.so` shared library into SQLite (works with `gzip` and `brotli`).
+To use as an extension, load the `libsqlite_compressions.so` shared library into SQLite.
 
 ```bash
 $ sqlite3
@@ -70,7 +70,7 @@ sqlite-compressions = { version = "0.2", default-features = false, features = ["
 * **brotli** - enable Brotli compression support
 * **gzip** - enable GZIP compression support
 
-The **loadable_extension** feature should only be used when building a `.so` or `.dll` extension file that can be loaded directly into sqlite3 executable.
+The **loadable_extension** feature should only be used when building a `.so` / `.dylib` / `.dll` extension file that can be loaded directly into sqlite3 executable.
 
 ## Development
 * This project is easier to develop with [just](https://github.com/casey/just#readme), a modern alternative to `make`. Install it with `cargo install just`.
