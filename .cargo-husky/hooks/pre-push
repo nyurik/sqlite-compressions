@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 #
 # See https://github.com/rhysd/cargo-husky#readme
 #
