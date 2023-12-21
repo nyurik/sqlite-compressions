@@ -3,8 +3,8 @@
 // Unsafe code is required for cdylib, so only use it for this crate
 #![forbid(unsafe_code)]
 
-#[cfg(not(any(feature = "gzip", feature = "brotli",)))]
-compile_error!("At least one of the features `gzip`, or `brotli` must be enabled.");
+#[cfg(not(any(feature = "gzip", feature = "brotli")))]
+compile_error!("At least one of these features must be enabled: gzip, brotli");
 
 /// Re-export of the [`rusqlite`](https://crates.io/crates/rusqlite) crate to avoid version conflicts.
 pub use rusqlite;

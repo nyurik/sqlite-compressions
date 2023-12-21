@@ -15,10 +15,10 @@ build-lib:
     cargo build --workspace --all-targets --bins --tests --lib --benches
 
 build-ext *ARGS:
-    cargo build --example sqlite_compressions --no-default-features --features loadable_extension,gzip,brotli {{ ARGS }}
+    cargo build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ ARGS }}
 
 cross-build-ext *ARGS:
-    cross build --example sqlite_compressions --no-default-features --features loadable_extension,gzip,brotli {{ ARGS }}
+    cross build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ ARGS }}
 
 cross-build-ext-aarch64: (cross-build-ext "--target=aarch64-unknown-linux-gnu" "--release")
 
@@ -105,7 +105,7 @@ bless *ARGS: (cargo-install "insta" "cargo-insta")
 cargo-install $COMMAND $INSTALL_CMD="" *ARGS="":
     #!/usr/bin/env sh
     set -eu
-    if ! command -v $COMMAND &> /dev/null; then
+    if [ ! command -v $COMMAND &> /dev/null ]; then
         echo "$COMMAND could not be found. Installing it with    cargo install ${INSTALL_CMD:-$COMMAND} {{ ARGS }}"
         cargo install ${INSTALL_CMD:-$COMMAND} {{ ARGS }}
     fi
