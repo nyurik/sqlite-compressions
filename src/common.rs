@@ -1,14 +1,13 @@
 use std::panic::{RefUnwindSafe, UnwindSafe};
 
+#[cfg(feature = "trace")]
+pub(crate) use log::trace;
 use rusqlite::functions::Context;
 use rusqlite::types::{Type, ValueRef};
 use rusqlite::Error::{InvalidFunctionParameterType, InvalidParameterCount};
 
 use crate::rusqlite::functions::FunctionFlags;
 use crate::rusqlite::{Connection, Result};
-
-#[cfg(feature = "trace")]
-pub(crate) use log::trace;
 #[cfg(not(feature = "trace"))]
 macro_rules! trace {
     ($($arg:tt)*) => {};
@@ -20,9 +19,10 @@ pub trait Encoder {
     fn test_name() -> &'static str;
     fn encode(data: &[u8], quality: Option<u32>) -> Result<Vec<u8>>;
     fn decode(data: &[u8]) -> Result<Vec<u8>>;
-    fn test(data: &[u8]) -> bool {
-        Self::decode(data).is_ok()
-    }
+    fn test(data: &[u8]) -> bool;
+    // {
+    //     Self::decode(data).is_ok()
+    // }
 }
 
 pub(crate) fn register_compression<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(

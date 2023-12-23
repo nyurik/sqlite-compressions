@@ -37,7 +37,7 @@ pub fn register_gzip_functions(conn: &Connection) -> Result<()> {
     register_compression::<GzipEncoder>(conn)
 }
 
-struct GzipEncoder;
+pub struct GzipEncoder;
 
 impl Encoder for GzipEncoder {
     fn enc_name() -> &'static str {
@@ -75,5 +75,19 @@ impl Encoder for GzipEncoder {
             .read_to_end(&mut decompressed)
             .map_err(|e| UserFunctionError(e.into()))?;
         Ok(decompressed)
+    }
+
+    fn test(data: &[u8]) -> bool {
+        // reuse the same buffer when decompressing
+        // ideally we should use some null buffer, but flate2 doesn't seem to support that
+        // note that buffer size does affect performance and depend on the input data size
+        let mut buffer = [0u8; 1024];
+        let mut decoder = GzDecoder::new(data);
+        while let Ok(len) = decoder.read(&mut buffer) {
+            if len == 0 {
+                return true;
+            }
+        }
+        false
     }
 }

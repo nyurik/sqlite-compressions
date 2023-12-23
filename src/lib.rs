@@ -12,16 +12,17 @@ pub use rusqlite;
 use crate::rusqlite::{Connection, Result};
 
 mod common;
+pub use crate::common::Encoder;
 
 #[cfg(feature = "gzip")]
 mod gzip;
 #[cfg(feature = "gzip")]
-pub use crate::gzip::register_gzip_functions;
+pub use crate::gzip::{register_gzip_functions, GzipEncoder};
 
 #[cfg(feature = "brotli")]
 mod brotli;
 #[cfg(feature = "brotli")]
-pub use crate::brotli::register_brotli_functions;
+pub use crate::brotli::{register_brotli_functions, BrotliEncoder};
 
 /// Register all compression functions for the given `SQLite` connection.
 /// This is a convenience function that calls all of the `register_*_functions` functions.

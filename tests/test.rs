@@ -75,6 +75,7 @@ fn common(#[case] func: &str) {
         assert_snapshot!(c.s(func, "%_decode(%(x'0123456789abcdef'))"), @"0123456789abcdef");
 
         assert_snapshot!(c.bool(func, "%_test(%(x'0123456789abcdef'))"), @"true");
+        assert_snapshot!(c.bool(func, "%_test(x'0123456789abcdef')"), @"false");
     );
 }
 

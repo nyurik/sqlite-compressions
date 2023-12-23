@@ -38,6 +38,11 @@ clippy:
 docs:
     cargo doc --no-deps --open
 
+# Run benchmarks
+bench:
+    cargo bench
+    open target/criterion/report/index.html
+
 # Test documentation
 test-doc:
     cargo test --doc

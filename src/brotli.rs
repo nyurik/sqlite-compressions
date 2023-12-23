@@ -1,3 +1,4 @@
+use brotli::{CompressorWriter, Decompressor};
 use std::io::{Read, Write};
 
 use rusqlite::Error::UserFunctionError;
@@ -34,7 +35,7 @@ pub fn register_brotli_functions(conn: &Connection) -> Result<()> {
     register_compression::<BrotliEncoder>(conn)
 }
 
-struct BrotliEncoder;
+pub struct BrotliEncoder;
 
 impl Encoder for BrotliEncoder {
     fn enc_name() -> &'static str {
@@ -49,7 +50,7 @@ impl Encoder for BrotliEncoder {
 
     fn encode(data: &[u8], quality: Option<u32>) -> Result<Vec<u8>> {
         let quality = if let Some(param) = quality { param } else { 11 };
-        let mut encoder = brotli::CompressorWriter::new(Vec::new(), 4096, quality, 22);
+        let mut encoder = CompressorWriter::new(Vec::new(), 4 * 1024, quality, 22);
         encoder
             .write_all(data)
             .map_err(|e| UserFunctionError(e.into()))?;
@@ -58,9 +59,23 @@ impl Encoder for BrotliEncoder {
 
     fn decode(data: &[u8]) -> Result<Vec<u8>> {
         let mut decompressed = Vec::new();
-        brotli::Decompressor::new(data, 4096)
+        Decompressor::new(data, 4 * 1024)
             .read_to_end(&mut decompressed)
             .map_err(|e| UserFunctionError(e.into()))?;
         Ok(decompressed)
+    }
+
+    fn test(data: &[u8]) -> bool {
+        // reuse the same buffer when decompressing
+        // ideally we should use some null buffer, but flate2 doesn't seem to support that
+        // note that buffer size does affect performance and depend on the input data size
+        let mut buffer = [0u8; 4 * 1024];
+        let mut decoder = Decompressor::new(data, 4 * 1024);
+        while let Ok(len) = decoder.read(&mut buffer) {
+            if len == 0 {
+                return true;
+            }
+        }
+        false
     }
 }
