@@ -1,6 +1,6 @@
 [package]
 name = "sqlite-compressions"
-version = "0.2.3"  # This value is also used in the README.md
+version = "0.2.4"  # This value is also used in the README.md
 description = "Compression, decompression, and testing functions for SQLite: gzip, brotli, ..."
 authors = ["Yuri Astrakhan <YuriAstrakhan@gmail.com>"]
 repository = "https://github.com/nyurik/sqlite-compressions"
@@ -8,7 +8,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["sqlite", "compression", "rusqlite", "gzip", "brotli"]
 categories = ["database", "compression"]
-rust-version = "1.65.0"
+rust-version = "1.70.0"
 
 [lib]
 name = "sqlite_compressions"
