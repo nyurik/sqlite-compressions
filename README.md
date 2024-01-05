@@ -9,7 +9,7 @@
 
 Implement SQLite compression, decompression, and testing functions for Brotli and gzip encodings. Functions are available as a loadable extension, or as a Rust library.
 
-See also a similar [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV1a, xxHash hashing functions.
+See also [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV1a, xxHash hashing functions.
 
 ## Usage
 
