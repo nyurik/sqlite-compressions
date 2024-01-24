@@ -8,7 +8,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["sqlite", "compression", "rusqlite", "gzip", "brotli"]
 categories = ["database", "compression"]
-rust-version = "1.70.0"
+rust-version = "1.71.1"
 
 [lib]
 name = "sqlite_compressions"
