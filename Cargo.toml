@@ -48,7 +48,7 @@ rusqlite = { version = "0.30", features = ["functions"] }
 cargo-husky = { version = "1", features = ["user-hooks"], default-features = false }
 criterion = { version = "0.5", features = ["html_reports"] }
 ctor = "0.2"
-env_logger = "0.10"
+env_logger = "0.11"
 hex = "0.4"
 insta = { version = "1", features = [] }
 rstest = "0.18"
