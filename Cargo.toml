@@ -8,7 +8,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["sqlite", "compression", "rusqlite", "gzip", "brotli"]
 categories = ["database", "compression"]
-rust-version = "1.70.0"
+rust-version = "1.71.1"
 
 [lib]
 name = "sqlite_compressions"
@@ -23,7 +23,8 @@ required-features = ["loadable_extension"]
 
 [features]
 default = ["trace", "gzip", "brotli"]
-# Use this feature to build loadable extension with all available features. Assumes --no-default-features
+# Use this feature to build loadable extension.
+# Assumes --no-default-features.
 default_loadable_extension = ["loadable_extension", "gzip", "brotli"]
 #
 # Enable Trace Logging
@@ -47,7 +48,7 @@ rusqlite = { version = "0.30", features = ["functions"] }
 cargo-husky = { version = "1", features = ["user-hooks"], default-features = false }
 criterion = { version = "0.5", features = ["html_reports"] }
 ctor = "0.2"
-env_logger = "0.10"
+env_logger = "0.11"
 hex = "0.4"
 insta = { version = "1", features = [] }
 rstest = "0.18"
