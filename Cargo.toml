@@ -42,7 +42,7 @@ brotli = ["dep:brotli"]
 brotli = { version = "3", optional = true }
 flate2 = { version = "1", optional = true }
 log = { version = "0.4", optional = true }
-rusqlite = { version = "0.30", features = ["functions"] }
+rusqlite = { version = "0.31", features = ["functions"] }
 
 [dev-dependencies]
 cargo-husky = { version = "1", features = ["user-hooks"], default-features = false }
