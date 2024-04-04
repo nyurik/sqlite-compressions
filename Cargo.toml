@@ -39,7 +39,7 @@ gzip = ["dep:flate2"]
 brotli = ["dep:brotli"]
 
 [dependencies]
-brotli = { version = "3", optional = true }
+brotli = { version = "4", optional = true }
 flate2 = { version = "1", optional = true }
 log = { version = "0.4.4", optional = true }
 rusqlite = { version = ">=0.30", features = ["functions"] }
