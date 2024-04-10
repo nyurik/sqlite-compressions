@@ -1,13 +1,14 @@
 use std::panic::{RefUnwindSafe, UnwindSafe};
 
 #[cfg(feature = "trace")]
-pub(crate) use log::trace;
+use log::trace;
 use rusqlite::functions::Context;
 use rusqlite::types::{Type, ValueRef};
 use rusqlite::Error::{InvalidFunctionParameterType, InvalidParameterCount};
 
 use crate::rusqlite::functions::FunctionFlags;
 use crate::rusqlite::{Connection, Result};
+
 #[cfg(not(feature = "trace"))]
 macro_rules! trace {
     ($($arg:tt)*) => {};
@@ -20,43 +21,23 @@ pub trait Encoder {
     fn encode(data: &[u8], quality: Option<u32>) -> Result<Vec<u8>>;
     fn decode(data: &[u8]) -> Result<Vec<u8>>;
     fn test(data: &[u8]) -> bool;
-    // {
-    //     Self::decode(data).is_ok()
-    // }
 }
 
 pub(crate) fn register_compression<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
     conn: &Connection,
 ) -> Result<()> {
+    let flags = FunctionFlags::SQLITE_UTF8
+        | FunctionFlags::SQLITE_DETERMINISTIC
+        | FunctionFlags::SQLITE_DIRECTONLY;
+
     trace!("Registering function {}", T::enc_name());
-    conn.create_scalar_function(
-        T::enc_name(),
-        -1,
-        FunctionFlags::SQLITE_UTF8
-            | FunctionFlags::SQLITE_DETERMINISTIC
-            | FunctionFlags::SQLITE_DIRECTONLY,
-        encoder_fn::<T>,
-    )?;
+    conn.create_scalar_function(T::enc_name(), -1, flags, encoder_fn::<T>)?;
 
     trace!("Registering function {}", T::dec_name());
-    conn.create_scalar_function(
-        T::dec_name(),
-        -1,
-        FunctionFlags::SQLITE_UTF8
-            | FunctionFlags::SQLITE_DETERMINISTIC
-            | FunctionFlags::SQLITE_DIRECTONLY,
-        decoder_fn::<T>,
-    )?;
+    conn.create_scalar_function(T::dec_name(), -1, flags, decoder_fn::<T>)?;
 
     trace!("Registering function {}", T::test_name());
-    conn.create_scalar_function(
-        T::test_name(),
-        -1,
-        FunctionFlags::SQLITE_UTF8
-            | FunctionFlags::SQLITE_DETERMINISTIC
-            | FunctionFlags::SQLITE_DIRECTONLY,
-        testing_fn::<T>,
-    )
+    conn.create_scalar_function(T::test_name(), -1, flags, testing_fn::<T>)
 }
 
 fn encoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(

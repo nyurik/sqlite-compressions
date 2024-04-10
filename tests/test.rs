@@ -1,5 +1,4 @@
-use insta::{allow_duplicates, assert_snapshot};
-use rstest::rstest;
+use insta::assert_snapshot;
 use rusqlite::types::FromSql;
 use rusqlite::{Connection, Result};
 
@@ -46,15 +45,16 @@ impl Conn {
     }
 }
 
-#[rstest]
+#[rstest::rstest]
 #[cfg_attr(feature = "gzip", case("gzip"))]
 #[cfg_attr(feature = "brotli", case("brotli"))]
 #[cfg_attr(feature = "bzip2", case("bzip2"))]
 #[trace]
 #[test]
+#[cfg(any(feature = "brotli", feature = "bzip2", feature = "gzip"))]
 fn common(#[case] func: &str) {
     let c = Conn::default();
-    allow_duplicates!(
+    insta::allow_duplicates!(
         assert_snapshot!(c.s(func, "%(NULL)"), @"NULL");
         assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
         assert_snapshot!(c.s(func, "%_test(NULL)"), @"NULL");
@@ -126,4 +126,23 @@ fn bzip2() {
     assert_snapshot!(c.s("bzip2", "%(x'0123', 0)"), @"unwinding panic");
     assert_snapshot!(c.s("bzip2", "%(x'0123', 10)"), @"The optional second argument to bzip2() must be between 0 and 9");
     assert_snapshot!(c.s("bzip2", "%(x'0123', 99)"), @"The optional second argument to bzip2() must be between 0 and 9");
+}
+
+#[test]
+#[cfg(feature = "bsdiff4")]
+fn bsdiff4() {
+    let c = Conn::default();
+    assert_snapshot!(c.s("bsdiff4", "%('', '')"), @"42534449464634300e000000000000000e000000000000000000000000000000425a683617724538509000000000425a683617724538509000000000425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%(x'', x'')"), @"42534449464634300e000000000000000e000000000000000000000000000000425a683617724538509000000000425a683617724538509000000000425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%('a', '')"), @"42534449464634300e000000000000000e000000000000000000000000000000425a683617724538509000000000425a683617724538509000000000425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%(x'00', '')"), @"42534449464634300e000000000000000e000000000000000000000000000000425a683617724538509000000000425a683617724538509000000000425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%('123456789', '123456789')"), @"42534449464634302b0000000000000025000000000000000900000000000000425a6836314159265359439c5a03000000e00040200c00200030cd341268369327177245385090439c5a03425a6836314159265359752890670000004000420020002100828317724538509075289067425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%(x'0123456789abcdef', x'0123456789abcdef')"), @"42534449464634302b0000000000000025000000000000000800000000000000425a68363141592653591533c7b1000000e00040400c00200030cd3412683693271772453850901533c7b1425a683631415926535996fb44a60000004000440020002100828317724538509096fb44a6425a683617724538509000000000");
+    assert_snapshot!(c.s("bsdiff4", "%('1234', '56789')"), @"42534449464634302a000000000000000e000000000000000500000000000000425a6836314159265359ff7cae8800000140004e002000219a68334d32b6c078bb9229c28487fbe57440425a683617724538509000000000425a6836314159265359e366ccbd000000080003e020002183419a025c7177245385090e366ccbd0");
+
+    assert_snapshot!(c.s("bsdiff4", "%(NULL, NULL)"), @"NULL");
+    assert_snapshot!(c.s("bsdiff4", "%('abc', NULL)"), @"NULL");
+    assert_snapshot!(c.s("bsdiff4", "%(NULL, 'abc')"), @"NULL");
+    assert_snapshot!(c.s("bsdiff4", "%(x'0123')"), @"wrong number of arguments to function bsdiff4()");
+    assert_snapshot!(c.s("bsdiff4", "%(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bsdiff4()");
 }
