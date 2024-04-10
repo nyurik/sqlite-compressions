@@ -6,8 +6,9 @@
 [![crates.io version](https://img.shields.io/crates/l/sqlite-compressions.svg)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 
-Implement SQLite compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings. Functions are
-available as a loadable extension, or as a Rust library.
+Implement SQLite compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
+[bsdiff4](https://github.com/mendsley/bsdiff#readme) binary diffing and patching support.
+Functions are available as a loadable extension, or as a Rust library.
 
 See also [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384,
 SHA512, FNV1a, xxHash hashing functions.
@@ -19,6 +20,10 @@ decoding `gzip_decode(data)`, and testing `gzip_test(data)` functions. Both enco
 blobs, and the
 testing function returns a true/false. The encoding functions can encode text and blob values, but will raise an error
 on other types like integers and floating point numbers. All functions will return `NULL` if the input data is `NULL`.
+
+`bsdiff4(source, target)` will return a binary diff between two blobs, and `bspatch4(source, diff)` will apply the diff
+to the source blob to produce the target blob. The diff and patch functions will raise an error if the input data is not
+blobs or if the diff is invalid. If either input is `NULL`, the diff and patch functions will return `NULL`.
 
 ### Extension
 
@@ -66,6 +71,11 @@ fn main() {
     let sql = "SELECT brotli_test(brotli('password'));";
     let res: bool = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
     assert!(res);
+
+    // Test that diffing source and target blobs can be applied to source to get target.
+    let sql = "SELECT bspatch4('source', bsdiff4('source', 'target'));";
+    let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
+    assert_eq!(res, b"target");
 }
 ```
 
@@ -83,6 +93,7 @@ sqlite-compressions = { version = "0.2", default-features = false, features = ["
 * **brotli** - enable Brotli compression support
 * **bzip2** - enable bzip2 compression support
 * **gzip** - enable GZIP compression support
+* **bsdiff4** - enable bsdiff4 binary diffing and patching support
 
 The **loadable_extension** feature should only be used when building a `.so` / `.dylib` / `.dll` extension file that can
 be loaded directly into sqlite3 executable.
