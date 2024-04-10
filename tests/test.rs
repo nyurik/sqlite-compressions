@@ -49,6 +49,7 @@ impl Conn {
 #[rstest]
 #[cfg_attr(feature = "gzip", case("gzip"))]
 #[cfg_attr(feature = "brotli", case("brotli"))]
+#[cfg_attr(feature = "bzip2", case("bzip2"))]
 #[trace]
 #[test]
 fn common(#[case] func: &str) {
@@ -109,4 +110,20 @@ fn brotli() {
     assert_snapshot!(c.s("brotli", "%(x'0123', 0)"), @"8b0080012303");
     assert_snapshot!(c.s("brotli", "%(x'0123', 10)"), @"8b0080012303");
     assert_snapshot!(c.s("brotli", "%(x'0123', 99)"), @"8b0080012303");
+}
+
+#[test]
+#[cfg(feature = "bzip2")]
+fn bzip2() {
+    let c = Conn::default();
+    assert_snapshot!(c.s("bzip2", "%('')"), @"425a683617724538509000000000");
+    assert_snapshot!(c.s("bzip2", "%(x'')"), @"425a683617724538509000000000");
+    assert_snapshot!(c.s("bzip2", "%('a')"), @"425a683631415926535919939b6b00000001002000200021184682ee48a70a120332736d60");
+    assert_snapshot!(c.s("bzip2", "%(x'00')"), @"425a6836314159265359b1f7404b00000040004000200021184682ee48a70a12163ee80960");
+    assert_snapshot!(c.s("bzip2", "%('123456789')"), @"425a6836314159265359fc89191800000008003fe02000220d0c0832621e0def29c177245385090fc8919180");
+    assert_snapshot!(c.s("bzip2", "%(x'0123456789abcdef')"), @"425a6836314159265359f61121f9000000555520000800020000800020000800020000a000310c08191a69933573f945dc914e14243d84487e40");
+
+    assert_snapshot!(c.s("bzip2", "%(x'0123', 0)"), @"unwinding panic");
+    assert_snapshot!(c.s("bzip2", "%(x'0123', 10)"), @"The optional second argument to bzip2() must be between 0 and 9");
+    assert_snapshot!(c.s("bzip2", "%(x'0123', 99)"), @"The optional second argument to bzip2() must be between 0 and 9");
 }
