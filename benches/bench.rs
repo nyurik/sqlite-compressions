@@ -1,33 +1,25 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use sqlite_compressions::{BrotliEncoder, Encoder as _, GzipEncoder};
+use sqlite_compressions::{BrotliEncoder, Bzip2Encoder, Encoder as _, GzipEncoder};
 
-// criterion_group!(benches, gzip_test);
-// criterion_group!(benches, brotli_test);
-criterion_group!(benches, gzip_test, brotli_test);
-criterion_main!(benches);
-
-fn gzip_test(c: &mut Criterion) {
-    let mut group = c.benchmark_group("test");
-    for size in [10, 10 * 1024, 1024 * 1024] {
-        let data = GzipEncoder::encode(gen_data(size).as_slice(), None).unwrap();
-        group.bench_function(BenchmarkId::new("gzip", size), |b| {
-            b.iter(|| GzipEncoder::test(&data));
-        });
-    }
-    group.finish();
+macro_rules! enc_test {
+    ($func_name:ident, $enc_type:ident, $func:literal) => {
+        fn $func_name(c: &mut Criterion) {
+            let mut group = c.benchmark_group("test");
+            group.sample_size(60);
+            for size in [10, 10 * 1024, 1024 * 1024] {
+                let data = $enc_type::encode(gen_data(size).as_slice(), None).unwrap();
+                group.bench_function(BenchmarkId::new($func, size), |b| {
+                    b.iter(|| $enc_type::test(&data));
+                });
+            }
+            group.finish();
+        }
+    };
 }
 
-fn brotli_test(c: &mut Criterion) {
-    let mut group = c.benchmark_group("test");
-    group.sample_size(60);
-    for size in [10, 10 * 1024, 1024 * 1024] {
-        let data = BrotliEncoder::encode(gen_data(size).as_slice(), None).unwrap();
-        group.bench_function(BenchmarkId::new("brotli", size), |b| {
-            b.iter(|| BrotliEncoder::test(&data));
-        });
-    }
-    group.finish();
-}
+enc_test!(gzip_test, GzipEncoder, "gzip");
+enc_test!(brotli_test, BrotliEncoder, "brotli");
+enc_test!(bzip2_test, Bzip2Encoder, "bzip2");
 
 fn gen_data(size: usize) -> Vec<u8> {
     let mut byte_data: Vec<u8> = Vec::with_capacity(size);
@@ -37,3 +29,6 @@ fn gen_data(size: usize) -> Vec<u8> {
     }
     byte_data
 }
+
+criterion_group!(benches, gzip_test, brotli_test, bzip2_test);
+criterion_main!(benches);

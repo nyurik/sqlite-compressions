@@ -66,10 +66,12 @@ test:
 
 # Test the library
 test-lib *ARGS: \
-    ( test-one-lib "--no-default-features" "--features" "trace,gzip"        ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,brotli"      ) \
-    ( test-one-lib "--no-default-features" "--features" "gzip,brotli"       ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,gzip,brotli" )
+    ( test-one-lib "--no-default-features" "--features" "trace,gzip"              ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,brotli"            ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,bzip2"             ) \
+    ( test-one-lib "--no-default-features" "--features" "gzip,brotli,bzip2"       ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,gzip,brotli"       ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,gzip,brotli,bzip2" )
 
 test-ext:
     ./tests/test-ext.sh
@@ -102,7 +104,7 @@ is-sqlite3-available:
     {{ sqlite3 }} --version
 
 # Run integration tests and save its output as the new expected output
-bless *ARGS: (cargo-install "insta" "cargo-insta")
+bless *ARGS: (cargo-install "cargo-insta")
     cargo insta test --accept --unreferenced=auto {{ ARGS }}
 
 # Check if a certain Cargo command is installed, and install it if needed

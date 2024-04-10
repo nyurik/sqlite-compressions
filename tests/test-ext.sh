@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
-set -eu
+#!/usr/bin/env bash
+set -euo pipefail
 
 SQLITE3_BIN=${SQLITE3_BIN:-sqlite3}
 EXTENSION_FILE=${EXTENSION_FILE:-target/debug/examples/libsqlite_compressions}
@@ -49,3 +49,10 @@ test_one "SELECT brotli_decode(brotli('12345', 1));"  "12345"
 test_one "SELECT brotli_decode(brotli('12345', 9));"  "12345"
 test_one "SELECT brotli_test(brotli('12345'));"       "1"
 test_one "SELECT brotli_test(x'123456');"             "0"
+
+test_one "SELECT hex(bzip2('12345'));"               "425A6836314159265359426548B800000008003E0020002183419A025C7177245385090426548B80"
+test_one "SELECT bzip2_decode(bzip2('12345'));"     "12345"
+test_one "SELECT bzip2_decode(bzip2('12345', 1));"  "12345"
+test_one "SELECT bzip2_decode(bzip2('12345', 9));"  "12345"
+test_one "SELECT bzip2_test(bzip2('12345'));"       "1"
+test_one "SELECT bzip2_test(x'123456');"             "0"

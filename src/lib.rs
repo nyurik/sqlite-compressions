@@ -3,8 +3,8 @@
 // Unsafe code is required for cdylib, so only use it for this crate
 #![forbid(unsafe_code)]
 
-#[cfg(not(any(feature = "gzip", feature = "brotli")))]
-compile_error!("At least one of these features must be enabled: gzip, brotli");
+#[cfg(not(any(feature = "gzip", feature = "brotli", feature = "bzip2")))]
+compile_error!("At least one of these features must be enabled: gzip, brotli, bzip2");
 
 /// Re-export of the [`rusqlite`](https://crates.io/crates/rusqlite) crate to avoid version conflicts.
 pub use rusqlite;
@@ -14,18 +14,23 @@ use crate::rusqlite::{Connection, Result};
 mod common;
 pub use crate::common::Encoder;
 
-#[cfg(feature = "gzip")]
-mod gzip;
-#[cfg(feature = "gzip")]
-pub use crate::gzip::{register_gzip_functions, GzipEncoder};
-
 #[cfg(feature = "brotli")]
 mod brotli;
 #[cfg(feature = "brotli")]
 pub use crate::brotli::{register_brotli_functions, BrotliEncoder};
 
+#[cfg(feature = "bzip2")]
+mod bzip2;
+#[cfg(feature = "bzip2")]
+pub use crate::bzip2::{register_bzip2_functions, Bzip2Encoder};
+
+#[cfg(feature = "gzip")]
+mod gzip;
+#[cfg(feature = "gzip")]
+pub use crate::gzip::{register_gzip_functions, GzipEncoder};
+
 /// Register all compression functions for the given `SQLite` connection.
-/// This is a convenience function that calls all of the `register_*_functions` functions.
+/// This is a convenience function that calls all the `register_*_functions` functions.
 /// Features must be enabled for the corresponding functions to be registered.
 ///
 /// # Example
@@ -56,6 +61,8 @@ pub fn register_compression_functions(conn: &Connection) -> Result<()> {
     register_gzip_functions(conn)?;
     #[cfg(feature = "brotli")]
     register_brotli_functions(conn)?;
+    #[cfg(feature = "bzip2")]
+    register_bzip2_functions(conn)?;
 
     Ok(())
 }

@@ -1,6 +1,6 @@
-use brotli::{CompressorWriter, Decompressor};
 use std::io::{Read, Write};
 
+use brotli::{CompressorWriter, Decompressor};
 use rusqlite::Error::UserFunctionError;
 
 use crate::common::{register_compression, Encoder};
