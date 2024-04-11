@@ -1,12 +1,12 @@
 [package]
 name = "sqlite-compressions"
 version = "0.2.9"  # This value is also used in the README.md
-description = "Compression, decompression, and testing functions for SQLite: gzip, brotli, ..."
+description = "Compression, decompression, testing, diffing and patching functions for SQLite: gzip, brotli, bsdiff, ..."
 authors = ["Yuri Astrakhan <YuriAstrakhan@gmail.com>"]
 repository = "https://github.com/nyurik/sqlite-compressions"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-keywords = ["sqlite", "compression", "rusqlite", "gzip", "brotli"]
+keywords = ["sqlite", "compression", "gzip", "brotli", "bsdiff"]
 categories = ["database", "compression"]
 rust-version = "1.74.1"
 
