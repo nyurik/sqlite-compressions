@@ -24,15 +24,20 @@ pub trait Differ {
 pub(crate) fn register_differ<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(
     conn: &Connection,
 ) -> Result<()> {
-    let flags = FunctionFlags::SQLITE_UTF8
-        | FunctionFlags::SQLITE_DETERMINISTIC
-        | FunctionFlags::SQLITE_DIRECTONLY;
+    // FunctionFlags derive Copy trait only in v0.31+, but we support v0.30+
+    macro_rules! flags {
+        () => {
+            FunctionFlags::SQLITE_UTF8
+                | FunctionFlags::SQLITE_DETERMINISTIC
+                | FunctionFlags::SQLITE_DIRECTONLY
+        };
+    }
 
     trace!("Registering function {}", T::diff_name());
-    conn.create_scalar_function(T::diff_name(), 2, flags, diff_fn::<T>)?;
+    conn.create_scalar_function(T::diff_name(), 2, flags!(), diff_fn::<T>)?;
 
     trace!("Registering function {}", T::patch_name());
-    conn.create_scalar_function(T::patch_name(), 2, flags, patch_fn::<T>)
+    conn.create_scalar_function(T::patch_name(), 2, flags!(), patch_fn::<T>)
 }
 
 fn diff_fn<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(

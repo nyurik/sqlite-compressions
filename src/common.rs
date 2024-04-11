@@ -26,18 +26,23 @@ pub trait Encoder {
 pub(crate) fn register_compression<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
     conn: &Connection,
 ) -> Result<()> {
-    let flags = FunctionFlags::SQLITE_UTF8
-        | FunctionFlags::SQLITE_DETERMINISTIC
-        | FunctionFlags::SQLITE_DIRECTONLY;
+    // FunctionFlags derive Copy trait only in v0.31+, but we support v0.30+
+    macro_rules! flags {
+        () => {
+            FunctionFlags::SQLITE_UTF8
+                | FunctionFlags::SQLITE_DETERMINISTIC
+                | FunctionFlags::SQLITE_DIRECTONLY
+        };
+    }
 
     trace!("Registering function {}", T::enc_name());
-    conn.create_scalar_function(T::enc_name(), -1, flags, encoder_fn::<T>)?;
+    conn.create_scalar_function(T::enc_name(), -1, flags!(), encoder_fn::<T>)?;
 
     trace!("Registering function {}", T::dec_name());
-    conn.create_scalar_function(T::dec_name(), -1, flags, decoder_fn::<T>)?;
+    conn.create_scalar_function(T::dec_name(), -1, flags!(), decoder_fn::<T>)?;
 
     trace!("Registering function {}", T::test_name());
-    conn.create_scalar_function(T::test_name(), -1, flags, testing_fn::<T>)
+    conn.create_scalar_function(T::test_name(), -1, flags!(), testing_fn::<T>)
 }
 
 fn encoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
