@@ -52,9 +52,14 @@ impl Encoder for Bzip2Encoder {
 
     fn encode(data: &[u8], quality: Option<u32>) -> Result<Vec<u8>> {
         let quality = if let Some(param) = quality {
-            if param > 9 {
+            if param < Compression::fast().level() || param > Compression::best().level() {
                 return Err(UserFunctionError(
-                    "The optional second argument to bzip2() must be between 0 and 9".into(),
+                    format!(
+                        "The optional second argument to bzip2() must be between {} and {}",
+                        Compression::fast().level(),
+                        Compression::best().level()
+                    )
+                    .into(),
                 ));
             }
             Compression::new(param)

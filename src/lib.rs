@@ -6,15 +6,21 @@
 #[cfg(not(any(
     feature = "brotli",
     feature = "bsdiff4",
+    feature = "bsdiffraw",
     feature = "bzip2",
     feature = "gzip",
 )))]
-compile_error!("At least one of these features must be enabled: gzip, brotli, bzip2, bsdiff4");
+compile_error!(
+    "At least one of these features must be enabled: gzip, brotli, bzip2, bsdiff4, bsdiffraw"
+);
 
 /// Re-export of the [`rusqlite`](https://crates.io/crates/rusqlite) crate to avoid version conflicts.
 pub use rusqlite;
 
 use crate::rusqlite::{Connection, Result};
+
+#[cfg(any(feature = "bsdiff4", feature = "bsdiffraw"))]
+mod common_diff;
 
 #[cfg(any(feature = "brotli", feature = "bzip2", feature = "gzip"))]
 mod common;
@@ -25,6 +31,11 @@ pub use crate::common::Encoder;
 mod bsdiff4;
 #[cfg(feature = "bsdiff4")]
 pub use crate::bsdiff4::register_bsdiff4_functions;
+
+#[cfg(feature = "bsdiffraw")]
+mod bsdiffraw;
+#[cfg(feature = "bsdiffraw")]
+pub use crate::bsdiffraw::register_bsdiffraw_functions;
 
 #[cfg(feature = "brotli")]
 mod brotli;
@@ -77,6 +88,8 @@ pub fn register_compression_functions(conn: &Connection) -> Result<()> {
     register_bzip2_functions(conn)?;
     #[cfg(feature = "bsdiff4")]
     register_bsdiff4_functions(conn)?;
+    #[cfg(feature = "bsdiffraw")]
+    register_bsdiffraw_functions(conn)?;
 
     Ok(())
 }

@@ -67,11 +67,12 @@ test:
 # Test the library
 test-lib *ARGS: \
     ( test-one-lib ) \
-    ( test-one-lib "--no-default-features" "--features" "gzip,brotli,bzip2,bsdiff4" ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,gzip"                ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,brotli"              ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,bzip2"               ) \
-    ( test-one-lib "--no-default-features" "--features" "trace,bsdiff4"             )
+    ( test-one-lib "--no-default-features" "--features" "gzip,brotli,bzip2,bsdiff4,bsdiffraw" ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,brotli"    ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,bsdiff4"   ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,bsdiffraw" ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,bzip2"     ) \
+    ( test-one-lib "--no-default-features" "--features" "trace,gzip"      )
 
 test-ext:
     ./tests/test-ext.sh
