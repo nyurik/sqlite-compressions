@@ -138,6 +138,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "bsdiff"
+version = "0.2.0"
+source = "git+https://github.com/space-wizards/bsdiff-rs.git?rev=77d9bf7c696eef650505033894a97e33bda471a7#77d9bf7c696eef650505033894a97e33bda471a7"
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -962,9 +967,10 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "sqlite-compressions"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "brotli",
+ "bsdiff",
  "bzip2",
  "cargo-husky",
  "criterion",

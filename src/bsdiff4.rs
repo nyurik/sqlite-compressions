@@ -1,19 +1,11 @@
 use std::io::Cursor;
 
-#[cfg(feature = "trace")]
-use log::trace;
 use qbsdiff::bsdiff::Bsdiff;
 use qbsdiff::bspatch::Bspatch;
-use rusqlite::functions::{Context, FunctionFlags};
-use rusqlite::types::{Type, ValueRef};
-use rusqlite::Error::{InvalidFunctionParameterType, UserFunctionError};
+use rusqlite::Error::UserFunctionError;
 
+use crate::common_diff::{register_differ, Differ};
 use crate::rusqlite::{Connection, Result};
-
-#[cfg(not(feature = "trace"))]
-macro_rules! trace {
-    ($($arg:tt)*) => {};
-}
 
 /// Register the `bsdiff4` and `bspatch4` SQL functions with the given `SQLite` connection.
 /// The `bsdiff4` function takes two arguments, and returns the [BSDiff delta](https://github.com/mendsley/bsdiff#readme) (blob) of the binary difference.
@@ -35,46 +27,33 @@ macro_rules! trace {
 /// # }
 /// ```
 pub fn register_bsdiff4_functions(conn: &Connection) -> Result<()> {
-    let flags = FunctionFlags::SQLITE_UTF8
-        | FunctionFlags::SQLITE_DETERMINISTIC
-        | FunctionFlags::SQLITE_DIRECTONLY;
+    register_differ::<Bsdiff4Differ>(conn)
+}
 
-    trace!("Registering function bsdiff4");
-    conn.create_scalar_function("bsdiff4", 2, flags, |ctx| {
-        let Some(source) = get_bytes(ctx, 0)? else {
-            return Ok(None);
-        };
-        let Some(target) = get_bytes(ctx, 1)? else {
-            return Ok(None);
-        };
+pub struct Bsdiff4Differ;
+
+impl Differ for Bsdiff4Differ {
+    fn diff_name() -> &'static str {
+        "bsdiff4"
+    }
+
+    fn patch_name() -> &'static str {
+        "bspatch4"
+    }
+
+    fn diff(source: &[u8], target: &[u8]) -> Result<Vec<u8>> {
         let mut patch = Vec::new();
         Bsdiff::new(source, target)
             .compare(Cursor::new(&mut patch))
             .map_err(|e| UserFunctionError(e.into()))?;
-        Ok(Some(patch))
-    })?;
+        Ok(patch)
+    }
 
-    trace!("Registering function bspatch4");
-    conn.create_scalar_function("bspatch4", 2, flags, |ctx| {
-        let Some(source) = get_bytes(ctx, 0)? else {
-            return Ok(None);
-        };
-        let Some(patch) = get_bytes(ctx, 1)? else {
-            return Ok(None);
-        };
+    fn patch(source: &[u8], patch: &[u8]) -> Result<Vec<u8>> {
         let mut target = Vec::new();
         Bspatch::new(patch)
             .and_then(|patch| patch.apply(source, Cursor::new(&mut target)))
             .map_err(|e| UserFunctionError(e.into()))?;
-        Ok(Some(target))
-    })
-}
-
-fn get_bytes<'a>(ctx: &'a Context, index: usize) -> Result<Option<&'a [u8]>> {
-    match ctx.get_raw(index) {
-        ValueRef::Blob(val) | ValueRef::Text(val) => Ok(Some(val)),
-        ValueRef::Null => Ok(None),
-        ValueRef::Integer(_) => Err(InvalidFunctionParameterType(index, Type::Integer)),
-        ValueRef::Real(_) => Err(InvalidFunctionParameterType(index, Type::Real)),
+        Ok(target)
     }
 }

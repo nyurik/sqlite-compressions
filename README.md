@@ -7,7 +7,8 @@
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 
 Implement SQLite compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
-[bsdiff4](https://github.com/mendsley/bsdiff#readme) binary diffing and patching support.
+[bsdiff4](https://github.com/mendsley/bsdiff#readme) and [raw bsdiff](https://github.com/space-wizards/bsdiff-rs#readme)
+binary diffing and patching support.
 Functions are available as a loadable extension, or as a Rust library.
 
 See also [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384,
@@ -24,6 +25,10 @@ on other types like integers and floating point numbers. All functions will retu
 `bsdiff4(source, target)` will return a binary diff between two blobs, and `bspatch4(source, diff)` will apply the diff
 to the source blob to produce the target blob. The diff and patch functions will raise an error if the input data is not
 blobs or if the diff is invalid. If either input is `NULL`, the diff and patch functions will return `NULL`.
+
+Similar `bsdiffraw(source, target)` and `bspatchraw(source, diff)` functions are available for raw bsdiff format. Raw
+format is not compressed and does not have any magic number prefix. If the internal format provided
+by [bsdiff crate](https://github.com/space-wizards/bsdiff-rs#readme) changes, we will add a separate function for it.
 
 ### Extension
 
@@ -76,6 +81,12 @@ fn main() {
     let sql = "SELECT bspatch4('source', bsdiff4('source', 'target'));";
     let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
     assert_eq!(res, b"target");
+
+    // Test that diffing source and target blobs can be applied
+    // to source to get target when using raw bsdiff format.
+    let sql = "SELECT bspatchraw('source', bsdiffraw('source', 'target'));";
+    let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
+    assert_eq!(res, b"target");
 }
 ```
 
@@ -94,6 +105,7 @@ sqlite-compressions = { version = "0.2", default-features = false, features = ["
 * **bzip2** - enable bzip2 compression support
 * **gzip** - enable GZIP compression support
 * **bsdiff4** - enable bsdiff4 binary diffing and patching support
+* **bsdiffraw** - enable bsdiff binary diffing and patching support using raw format
 
 The **loadable_extension** feature should only be used when building a `.so` / `.dylib` / `.dll` extension file that can
 be loaded directly into sqlite3 executable.
