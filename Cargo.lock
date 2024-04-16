@@ -758,9 +758,9 @@ dependencies = [
 
 [[package]]
 name = "qbsdiff"
-version = "1.4.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d8e2face08bcbd8c1083bd021b88d3bc174bbaac23cc7c95ebde2692efd9b1d"
+checksum = "36d77c1e6997a14428f103e2d003a6e41c9cd149a8509d26b4a76b5e912fbe58"
 dependencies = [
  "byteorder",
  "bzip2",
