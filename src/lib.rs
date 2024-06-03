@@ -21,6 +21,8 @@ use crate::rusqlite::{Connection, Result};
 
 #[cfg(any(feature = "bsdiff4", feature = "bsdiffraw"))]
 mod common_diff;
+#[cfg(any(feature = "bsdiff4", feature = "bsdiffraw"))]
+pub use crate::common_diff::Differ;
 
 #[cfg(any(feature = "brotli", feature = "bzip2", feature = "gzip"))]
 mod common;
@@ -30,12 +32,12 @@ pub use crate::common::Encoder;
 #[cfg(feature = "bsdiff4")]
 mod bsdiff4;
 #[cfg(feature = "bsdiff4")]
-pub use crate::bsdiff4::register_bsdiff4_functions;
+pub use crate::bsdiff4::{register_bsdiff4_functions, Bsdiff4Differ};
 
 #[cfg(feature = "bsdiffraw")]
 mod bsdiffraw;
 #[cfg(feature = "bsdiffraw")]
-pub use crate::bsdiffraw::register_bsdiffraw_functions;
+pub use crate::bsdiffraw::{register_bsdiffraw_functions, BsdiffRawDiffer};
 
 #[cfg(feature = "brotli")]
 mod brotli;
