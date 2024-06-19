@@ -6,17 +6,17 @@
 [![crates.io version](https://img.shields.io/crates/l/sqlite-compressions.svg)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 
-Implement SQLite compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
+Implement `SQLite` compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
 [bsdiff4](https://github.com/mendsley/bsdiff#readme) and [raw bsdiff](https://github.com/space-wizards/bsdiff-rs#readme)
 binary diffing and patching support.
 Functions are available as a loadable extension, or as a Rust library.
 
-See also [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for MD5, SHA1, SHA224, SHA256, SHA384,
-SHA512, FNV1a, xxHash hashing functions.
+See also [SQLite-hashes](https://github.com/nyurik/sqlite-hashes) extension for `MD5, SHA1, SHA224, SHA256, SHA384,
+SHA512, FNV1a, xxHash` hashing functions.
 
 ## Usage
 
-This SQLite extension adds functions for brotli, bzip2, and gzip compressions like `gzip(data, [quality])`,
+This `SQLite` extension adds functions for brotli, bzip2, and gzip compressions like `gzip(data, [quality])`,
 decoding `gzip_decode(data)`, and testing `gzip_test(data)` functions. Both encoding and decoding functions return
 blobs, and the
 testing function returns a true/false. The encoding functions can encode text and blob values, but will raise an error
@@ -32,7 +32,7 @@ by [bsdiff crate](https://github.com/space-wizards/bsdiff-rs#readme) changes, we
 
 ### Extension
 
-To use as an extension, load the `libsqlite_compressions.so` shared library into SQLite.
+To use as an extension, load the `libsqlite_compressions.so` shared library into `SQLite`.
 
 ```bash
 $ sqlite3
@@ -56,41 +56,39 @@ disable the default features to reduce compile time and binary size).
 ```rust
 use sqlite_compressions::{register_compression_functions, rusqlite::Connection};
 
-fn main() {
-    // Connect to SQLite DB and register needed functions
-    let db = Connection::open_in_memory().unwrap();
-    // can also use encoding-specific ones like register_gzip_functions(&db)  
-    register_compression_functions(&db).unwrap();
+// Connect to SQLite DB and register needed functions
+let db = Connection::open_in_memory().unwrap();
+// can also use encoding-specific ones like register_gzip_functions(&db)  
+register_compression_functions( & db).unwrap();
 
-    // Encode 'password' using GZIP, and dump resulting BLOB as a HEX string
-    let sql = "SELECT hex(gzip('password'));";
-    let res: String = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
-    assert_eq!(res, "1F8B08000000000000FF2B482C2E2ECF2F4A0100D546C23508000000");
+// Encode 'password' using GZIP, and dump resulting BLOB as a HEX string
+let sql = "SELECT hex(gzip('password'));";
+let res: String = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+assert_eq!(res, "1F8B08000000000000FF2B482C2E2ECF2F4A0100D546C23508000000");
 
-    // Encode 'password' using Brotli, decode it, and convert the blob to text
-    let sql = "SELECT CAST(brotli_decode(brotli('password')) AS TEXT);";
-    let res: String = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
-    assert_eq!(res, "password");
+// Encode 'password' using Brotli, decode it, and convert the blob to text
+let sql = "SELECT CAST(brotli_decode(brotli('password')) AS TEXT);";
+let res: String = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+assert_eq!(res, "password");
 
-    // Test that Brotli-encoded value is correct.
-    let sql = "SELECT brotli_test(brotli('password'));";
-    let res: bool = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
-    assert!(res);
+// Test that Brotli-encoded value is correct.
+let sql = "SELECT brotli_test(brotli('password'));";
+let res: bool = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+assert!(res);
 
-    // Test that diffing source and target blobs can be applied to source to get target.
-    let sql = "SELECT bspatch4('source', bsdiff4('source', 'target'));";
-    let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
-    assert_eq!(res, b"target");
+// Test that diffing source and target blobs can be applied to source to get target.
+let sql = "SELECT bspatch4('source', bsdiff4('source', 'target'));";
+let res: Vec<u8> = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+assert_eq!(res, b"target");
 
-    // Test that diffing source and target blobs can be applied
-    // to source to get target when using raw bsdiff format.
-    let sql = "SELECT bspatchraw('source', bsdiffraw('source', 'target'));";
-    let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
-    assert_eq!(res, b"target");
-}
+// Test that diffing source and target blobs can be applied
+// to source to get target when using raw bsdiff format.
+let sql = "SELECT bspatchraw('source', bsdiffraw('source', 'target'));";
+let res: Vec<u8> = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+assert_eq!(res, b"target");
 ```
 
-#### Using with SQLx
+#### Using with `SQLx`
 
 To use with [SQLx](https://crates.io/crates/sqlx), you need to get the raw handle from the `SqliteConnection` and pass it to the registration function.
 
@@ -131,8 +129,8 @@ sqlite-compressions = { version = "0.2", default-features = false, features = ["
 * **bsdiff4** - enable bsdiff4 binary diffing and patching support
 * **bsdiffraw** - enable bsdiff binary diffing and patching support using raw format
 
-The **loadable_extension** feature should only be used when building a `.so` / `.dylib` / `.dll` extension file that can
-be loaded directly into sqlite3 executable.
+The **`loadable_extension`** feature should only be used when building
+a `.so` / `.dylib` / `.dll` extension file that can be loaded directly into sqlite3 executable.
 
 ## Development
 
