@@ -9,10 +9,14 @@ sqlite3 := 'sqlite3'
 clean:
     cargo clean
 
+update:
+    cargo +nightly -Z unstable-options update --breaking
+    cargo update
+
 build: build-lib build-ext
 
 build-lib:
-    cargo build --workspace --all-targets --bins --tests --lib --benches
+    cargo build --workspace
 
 build-ext *ARGS:
     cargo build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ ARGS }}
@@ -22,50 +26,29 @@ cross-build-ext *ARGS:
 
 cross-build-ext-aarch64: (cross-build-ext "--target=aarch64-unknown-linux-gnu" "--release")
 
-# Run cargo fmt and cargo clippy
-lint: fmt clippy
+# Run cargo clippy
+clippy:
+    cargo clippy -- -D warnings
+    cargo clippy --workspace --all-targets -- -D warnings
+
+# Test code formatting
+test-fmt:
+    cargo fmt --all -- --check
 
 # Run cargo fmt
 fmt:
     cargo +nightly fmt -- --config imports_granularity=Module,group_imports=StdExternalCrate
 
-# Run cargo clippy
-clippy:
-    cargo clippy -- -D warnings
-    cargo clippy --workspace --all-targets --bins --tests --lib --benches --examples -- -D warnings
-
 # Build and open code documentation
 docs:
     cargo doc --no-deps --open
 
-# Run benchmarks
-bench:
-    cargo bench
-    open target/criterion/report/index.html
-
-# Test documentation
-test-doc:
-    cargo test --doc
-    RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
-
-# Run all tests
-test:
-    rustc --version
-    cargo --version
-    cargo fmt --all -- --check
-    RUSTFLAGS='-D warnings' cargo build
-    {{ just_executable() }} test-lib
-    @echo "### DOCS #######################################################################################################################"
-    {{ just_executable() }} test-doc
-    @echo "### CLIPPY #####################################################################################################################"
-    {{ just_executable() }} clippy
-    @echo "### BUILD EXTENSION ############################################################################################################"
-    {{ just_executable() }} build-ext
-    @echo "### TEST EXTENSION #############################################################################################################"
-    {{ just_executable() }} test-ext
+# Quick compile
+check:
+    RUSTFLAGS='-D warnings' cargo check --workspace --all-targets
 
 # Test the library
-test-lib *ARGS: \
+test *ARGS: \
     ( test-one-lib ) \
     ( test-one-lib "--no-default-features" "--features" "gzip,brotli,bzip2,bsdiff4,bsdiffraw" ) \
     ( test-one-lib "--no-default-features" "--features" "trace,brotli"    ) \
@@ -74,7 +57,7 @@ test-lib *ARGS: \
     ( test-one-lib "--no-default-features" "--features" "trace,bzip2"     ) \
     ( test-one-lib "--no-default-features" "--features" "trace,gzip"      )
 
-test-ext:
+test-ext: build-ext
     ./tests/test-ext.sh
 
 cross-test-ext-aarch64:
@@ -92,6 +75,21 @@ cross-test-ext-aarch64:
 test-one-lib *ARGS:
     @echo "### TEST {{ ARGS }} #######################################################################################################################"
     cargo test {{ ARGS }}
+
+# Test documentation
+test-doc:
+    cargo test --doc
+    RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+
+rust-info:
+    rustc --version
+    cargo --version
+
+# Run all tests as expected by CI
+ci-test: rust-info test-fmt clippy check test test-ext test-doc
+
+# Run minimal subset of tests to ensure compatibility with MSRV
+ci-test-msrv: rust-info check test
 
 [private]
 is-sqlite3-available:
@@ -122,3 +120,8 @@ cargo-install $COMMAND $INSTALL_CMD="" *ARGS="":
             cargo binstall ${INSTALL_CMD:-$COMMAND} {{ ARGS }}
         fi
     fi
+
+# Run benchmarks
+bench:
+    cargo bench
+    open target/criterion/report/index.html
