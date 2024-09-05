@@ -49,8 +49,7 @@ impl Encoder for BrotliEncoder {
     }
 
     fn encode(data: &[u8], quality: Option<u32>) -> Result<Vec<u8>> {
-        let quality = if let Some(param) = quality { param } else { 11 };
-        let mut encoder = CompressorWriter::new(Vec::new(), 4 * 1024, quality, 22);
+        let mut encoder = CompressorWriter::new(Vec::new(), 4 * 1024, quality.unwrap_or(11), 22);
         encoder
             .write_all(data)
             .map_err(|e| UserFunctionError(e.into()))?;
