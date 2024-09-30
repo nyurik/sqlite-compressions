@@ -60,7 +60,7 @@ ctor = "0.2"
 env_logger = "0.11"
 hex = "0.4"
 insta = { version = "1", features = [] }
-rstest = "0.22"
+rstest = "0.23"
 
 [lints.rust]
 unused_qualifications = "warn"
