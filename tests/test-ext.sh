@@ -6,12 +6,12 @@ EXTENSION_FILE=${EXTENSION_FILE:-target/debug/examples/libsqlite_compressions}
 
 if [ ! -f "$EXTENSION_FILE" ] && [ ! -f "$EXTENSION_FILE.so" ] && [ ! -f "$EXTENSION_FILE.dylib" ] && [ ! -f "$EXTENSION_FILE.dll" ]; then
     echo "Extension file $EXTENSION_FILE [.so|.dylib|.dll] do not exist. Run 'just build-ext' first. Available files:"
-    ls -l $EXTENSION_FILE*
+    ls -l "$EXTENSION_FILE"*
     exit 1
 fi
 echo "Using extension file '$EXTENSION_FILE [.so|.dylib|.dll]'"
 
-if [ ! command -v $SQLITE3_BIN &> /dev/null ]; then
+if ! command -v "$SQLITE3_BIN" > /dev/null; then
     echo "$SQLITE3_BIN executable could not be found"
     exit 1
 fi
