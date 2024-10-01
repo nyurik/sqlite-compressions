@@ -90,7 +90,8 @@ assert_eq!(res, b"target");
 
 #### Using with `SQLx`
 
-To use with [SQLx](https://crates.io/crates/sqlx), you need to get the raw handle from the `SqliteConnection` and pass it to the registration function.
+To use with [SQLx](https://crates.io/crates/sqlx), you need to get the raw handle from the
+`SqliteConnection` and pass it to the registration function.
 
 ```rust,ignore
 use rusqlite::Connection;
@@ -134,6 +135,7 @@ a `.so` / `.dylib` / `.dll` extension file that can be loaded directly into sqli
 
 ## Development
 
+* You must install `sqlite3` and `libsqlite3-dev`, e.g. `sudo apt install -y libsqlite3-dev sqlite3` on Ubuntu/Mint.
 * This project is easier to develop with [just](https://github.com/casey/just#readme), a modern alternative to `make`.
   Install it with `cargo install just`.
 * To get a list of available commands, run `just`.

@@ -1,6 +1,6 @@
 [package]
 name = "sqlite-compressions"
-version = "0.2.14"  # This value is also used in the README.md
+version = "0.2.15"  # This value is also used in the README.md
 description = "Compression, decompression, testing, diffing and patching functions for SQLite: gzip, brotli, bsdiff, ..."
 authors = ["Yuri Astrakhan <YuriAstrakhan@gmail.com>"]
 repository = "https://github.com/nyurik/sqlite-compressions"
@@ -60,7 +60,7 @@ ctor = "0.2"
 env_logger = "0.11"
 hex = "0.4"
 insta = { version = "1", features = [] }
-rstest = "0.22"
+rstest = "0.23"
 
 [lints.rust]
 unused_qualifications = "warn"
