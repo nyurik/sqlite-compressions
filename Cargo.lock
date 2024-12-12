@@ -161,6 +161,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bzip2"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bafdbf26611df8c14810e268ddceda071c297570a5fb360ceddf617fe417ef58"
+dependencies = [
+ "bzip2-sys",
+ "libc",
+]
+
+[[package]]
 name = "bzip2-sys"
 version = "0.1.11+1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -797,7 +807,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36d77c1e6997a14428f103e2d003a6e41c9cd149a8509d26b4a76b5e912fbe58"
 dependencies = [
  "byteorder",
- "bzip2",
+ "bzip2 0.4.4",
  "rayon",
  "suffix_array",
 ]
@@ -1014,7 +1024,7 @@ version = "0.2.16"
 dependencies = [
  "brotli",
  "bsdiff",
- "bzip2",
+ "bzip2 0.5.0",
  "cargo-husky",
  "criterion",
  "ctor",
