@@ -3,15 +3,20 @@
 sqlite3 := 'sqlite3'
 
 @_default:
-    just --list --unsorted
+    just --list
 
 # Clean all build artifacts
 clean:
     cargo clean
 
+# Update dependencies, including breaking changes
 update:
     cargo +nightly -Z unstable-options update --breaking
     cargo update
+
+# Update the minimum supported Rust version. Install it with `cargo install cargo-msrv`
+msrv:
+    cargo msrv find --write-msrv
 
 build: build-lib build-ext
 
@@ -19,10 +24,10 @@ build-lib:
     cargo build --workspace
 
 build-ext *ARGS:
-    cargo build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ ARGS }}
+    cargo build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ARGS}}
 
 cross-build-ext *ARGS:
-    cross build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ ARGS }}
+    cross build --example sqlite_compressions --no-default-features --features default_loadable_extension {{ARGS}}
 
 cross-build-ext-aarch64: (cross-build-ext "--target=aarch64-unknown-linux-gnu" "--release")
 
@@ -77,8 +82,8 @@ cross-test-ext-aarch64:
 
 [private]
 test-one-lib *ARGS:
-    @echo "### TEST {{ ARGS }} #######################################################################################################################"
-    cargo test {{ ARGS }}
+    @echo "### TEST {{ARGS}} #######################################################################################################################"
+    cargo test {{ARGS}}
 
 # Test documentation
 test-doc:
@@ -99,16 +104,16 @@ ci-test-msrv: rust-info check-lib test
 is-sqlite3-available:
     #!/usr/bin/env sh
     set -eu
-    if ! command -v {{ sqlite3 }} &> /dev/null; then
-        echo "{{ sqlite3 }} executable could not be found"
+    if ! command -v {{sqlite3}} > /dev/null; then
+        echo "{{sqlite3}} executable could not be found"
         exit 1
     fi
-    echo "Found {{ sqlite3 }} executable:"
-    {{ sqlite3 }} --version
+    echo "Found {{sqlite3}} executable:"
+    {{sqlite3}} --version
 
 # Run integration tests and save its output as the new expected output
 bless *ARGS: (cargo-install "cargo-insta")
-    cargo insta test --accept --unreferenced=auto {{ ARGS }}
+    cargo insta test --accept --unreferenced=auto {{ARGS}}
 
 # Check if a certain Cargo command is installed, and install it if needed
 [private]
@@ -117,11 +122,11 @@ cargo-install $COMMAND $INSTALL_CMD="" *ARGS="":
     set -eu
     if ! command -v $COMMAND > /dev/null; then
         if ! command -v cargo-binstall > /dev/null; then
-            echo "$COMMAND could not be found. Installing it with    cargo install ${INSTALL_CMD:-$COMMAND} {{ ARGS }}"
-            cargo install ${INSTALL_CMD:-$COMMAND} {{ ARGS }}
+            echo "$COMMAND could not be found. Installing it with    cargo install ${INSTALL_CMD:-$COMMAND} {{ARGS}}"
+            cargo install ${INSTALL_CMD:-$COMMAND} {{ARGS}}
         else
-            echo "$COMMAND could not be found. Installing it with    cargo binstall ${INSTALL_CMD:-$COMMAND} {{ ARGS }}"
-            cargo binstall ${INSTALL_CMD:-$COMMAND} {{ ARGS }}
+            echo "$COMMAND could not be found. Installing it with    cargo binstall ${INSTALL_CMD:-$COMMAND} {{ARGS}}"
+            cargo binstall ${INSTALL_CMD:-$COMMAND} {{ARGS}}
         fi
     fi
 
