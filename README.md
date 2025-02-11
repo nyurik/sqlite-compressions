@@ -59,32 +59,32 @@ use sqlite_compressions::{register_compression_functions, rusqlite::Connection};
 // Connect to SQLite DB and register needed functions
 let db = Connection::open_in_memory().unwrap();
 // can also use encoding-specific ones like register_gzip_functions(&db)
-register_compression_functions( & db).unwrap();
+register_compression_functions(&db).unwrap();
 
 // Encode 'password' using GZIP, and dump resulting BLOB as a HEX string
 let sql = "SELECT hex(gzip('password'));";
-let res: String = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+let res: String = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
 assert_eq!(res, "1F8B08000000000000FF2B482C2E2ECF2F4A0100D546C23508000000");
 
 // Encode 'password' using Brotli, decode it, and convert the blob to text
 let sql = "SELECT CAST(brotli_decode(brotli('password')) AS TEXT);";
-let res: String = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+let res: String = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
 assert_eq!(res, "password");
 
 // Test that Brotli-encoded value is correct.
 let sql = "SELECT brotli_test(brotli('password'));";
-let res: bool = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+let res: bool = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
 assert!(res);
 
 // Test that diffing source and target blobs can be applied to source to get target.
 let sql = "SELECT bspatch4('source', bsdiff4('source', 'target'));";
-let res: Vec<u8> = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
 assert_eq!(res, b"target");
 
 // Test that diffing source and target blobs can be applied
 // to source to get target when using raw bsdiff format.
 let sql = "SELECT bspatchraw('source', bsdiffraw('source', 'target'));";
-let res: Vec<u8> = db.query_row_and_then( & sql, [], | r| r.get(0)).unwrap();
+let res: Vec<u8> = db.query_row_and_then(&sql, [], |r| r.get(0)).unwrap();
 assert_eq!(res, b"target");
 ```
 
