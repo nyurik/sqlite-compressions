@@ -15,5 +15,5 @@ repos:
         name: Rust Format
         description: "Automatically format Rust code with cargo fmt"
         entry: sh -c "cargo fmt --all && git add -u"
-        language: system
+        language: rust
         pass_filenames: false
