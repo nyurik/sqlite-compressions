@@ -20,7 +20,7 @@ pub use rusqlite;
 use crate::rusqlite::{Connection, Result};
 
 #[cfg(any(feature = "bsdiff4", feature = "bsdiffraw"))]
-mod common_diff;
+  mod   common_diff;
 #[cfg(any(feature = "bsdiff4", feature = "bsdiffraw"))]
 pub use crate::common_diff::Differ;
 

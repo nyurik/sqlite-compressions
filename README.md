@@ -120,7 +120,7 @@ binary size.
 
 ```toml
 [dependencies]
-sqlite-compressions = { version = "0.2", default-features = false, features = ["brotli"] }
+sqlite-compressions = { version = "0.3", default-features = false, features = ["brotli"] }
 ``` 
 
 * **trace** - enable tracing support, logging all function calls and their arguments

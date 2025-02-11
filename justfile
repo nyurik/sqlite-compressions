@@ -13,6 +13,10 @@ update:
     cargo +nightly -Z unstable-options update --breaking
     cargo update
 
+# Find the minimum supported Rust version (MSRV) using cargo-msrv extension, and update Cargo.toml
+msrv:
+    cargo msrv find --write-msrv
+
 build: build-lib build-ext
 
 build-lib:
