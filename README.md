@@ -58,7 +58,7 @@ use sqlite_compressions::{register_compression_functions, rusqlite::Connection};
 
 // Connect to SQLite DB and register needed functions
 let db = Connection::open_in_memory().unwrap();
-// can also use encoding-specific ones like register_gzip_functions(&db)  
+// can also use encoding-specific ones like register_gzip_functions(&db)
 register_compression_functions( & db).unwrap();
 
 // Encode 'password' using GZIP, and dump resulting BLOB as a HEX string
@@ -121,7 +121,7 @@ binary size.
 ```toml
 [dependencies]
 sqlite-compressions = { version = "0.3", default-features = false, features = ["brotli"] }
-``` 
+```
 
 * **trace** - enable tracing support, logging all function calls and their arguments
 * **brotli** - enable Brotli compression support
