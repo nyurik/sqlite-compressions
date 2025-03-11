@@ -24,7 +24,7 @@ semver *ARGS:
 
 # Find the minimum supported Rust version (MSRV) using cargo-msrv extension, and update Cargo.toml
 msrv:
-    cargo msrv find --write-msrv
+    cargo msrv find --write-msrv --ignore-lockfile
 
 build: build-lib build-ext
 
@@ -41,8 +41,8 @@ cross-build-ext-aarch64: (cross-build-ext "--target=aarch64-unknown-linux-gnu" "
 
 # Run cargo clippy
 clippy:
-    cargo clippy -- -D warnings
     cargo clippy --workspace --all-targets -- -D warnings
+    cargo clippy --no-default-features --features default_loadable_extension -- -D warnings
 
 # Test code formatting
 test-fmt:
@@ -91,7 +91,7 @@ cross-test-ext-aarch64:
 [private]
 test-one-lib *ARGS:
     @echo "### TEST {{ARGS}} #######################################################################################################################"
-    cargo test {{ARGS}}
+    RUSTDOCFLAGS="-D warnings" cargo test {{ARGS}}
 
 # Test documentation
 test-doc:
@@ -143,6 +143,14 @@ bench:
     cargo bench
     open target/criterion/report/index.html
 
+# Switch to the minimum rusqlite version
+set-min-rusqlite-version: (assert "jq")
+    #!/usr/bin/env bash
+    set -eu
+    MIN_RUSQL_VER="$(grep '^rusqlite =.*version = ">=' Cargo.toml | sed -E 's/.*version = "[^"0-9]*([0-9.-]+).*/\1/')"
+    echo "Switching to minimum rusqlite version: $MIN_RUSQL_VER"
+    cargo update -p rusqlite --precise "$MIN_RUSQL_VER"
+
 # Verify that the current version of the crate is not the same as the one published on crates.io
 check-if-published:
     #!/usr/bin/env bash
@@ -157,4 +165,12 @@ check-if-published:
         exit 1
     else
         echo "The current crate version has not yet been published."
+    fi
+
+# Ensure that a certain command is available
+[private]
+assert $COMMAND:
+    @if ! type "{{COMMAND}}" > /dev/null; then \
+        echo "Command '{{COMMAND}}' could not be found. Please make sure it has been installed on your computer." ;\
+        exit 1 ;\
     fi
