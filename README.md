@@ -5,6 +5,7 @@
 [![docs.rs docs](https://docs.rs/sqlite-compressions/badge.svg)](https://docs.rs/sqlite-compressions)
 [![license](https://img.shields.io/crates/l/sqlite-compressions.svg)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/nyurik/sqlite-compressions)](https://app.codecov.io/gh/nyurik/sqlite-compressions)
 
 Implement `SQLite` compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
 [bsdiff4](https://github.com/mendsley/bsdiff#readme) and [raw bsdiff](https://github.com/space-wizards/bsdiff-rs#readme)
