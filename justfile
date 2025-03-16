@@ -116,7 +116,7 @@ test-one-lib *ARGS:
 
 # Test documentation
 test-doc:
-    cargo test --doc
+    RUSTDOCFLAGS="-D warnings" cargo test --doc
     RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 
 # Print Rust version information
