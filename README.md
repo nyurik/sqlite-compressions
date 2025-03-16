@@ -141,15 +141,13 @@ a `.so` / `.dylib` / `.dll` extension file that can be loaded directly into sqli
   Install it with `cargo install just`.
 * To get a list of available commands, run `just`.
 * To run tests, use `just test`.
-* On `git push`, it will run a few validations, including `cargo fmt`, `cargo clippy`, and `cargo test`.
-  Use `git push --no-verify` to skip these checks.
 
 ## License
 
 Licensed under either of
 
-* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or <https://www.apache.org/licenses/LICENSE-2.0>)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/licenses/MIT>)
   at your option.
 
 ### Contribution
