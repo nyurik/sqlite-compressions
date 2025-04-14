@@ -141,16 +141,6 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "bzip2"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdb116a6ef3f6c3698828873ad02c3014b3c85cadb88496095628e3ef1e347f8"
-dependencies = [
- "bzip2-sys",
- "libc",
-]
-
-[[package]]
-name = "bzip2"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49ecfb22d906f800d4fe833b6282cf4dc1c298f5057ca0b5445e5c209735ca47"
@@ -801,12 +791,12 @@ dependencies = [
 
 [[package]]
 name = "qbsdiff"
-version = "1.4.2"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36d77c1e6997a14428f103e2d003a6e41c9cd149a8509d26b4a76b5e912fbe58"
+checksum = "73ee0630c045473cad802a241ec0dedab000b05be60917870ef2ff9f55a25780"
 dependencies = [
  "byteorder",
- "bzip2 0.4.4",
+ "bzip2",
  "rayon",
  "suffix_array",
 ]
@@ -1029,7 +1019,7 @@ version = "0.3.2"
 dependencies = [
  "brotli",
  "bsdiff",
- "bzip2 0.5.2",
+ "bzip2",
  "criterion",
  "ctor",
  "env_logger",

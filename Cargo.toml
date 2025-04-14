@@ -48,7 +48,7 @@ bsdiff = { version = "0.2.1", optional = true }
 bzip2 = { version = "0.5.2", optional = true }
 flate2 = { version = "1.1.1", optional = true }
 log = { version = "0.4.27", optional = true }
-qbsdiff = { version = "1.4.2", optional = true }
+qbsdiff = { version = "1.4.3", optional = true }
 
 # There are multiple versions that could work, but sqlx requires a specific one, so don't limit it here
 # Note that cdylib requires >= 0.32.0 (controlled by the lock file)
