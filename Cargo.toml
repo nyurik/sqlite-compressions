@@ -50,13 +50,13 @@ flate2 = { version = "1.1.1", optional = true }
 log = { version = "0.4.27", optional = true }
 qbsdiff = { version = "1.4.3", optional = true }
 
-# There are multiple versions that could work, but sqlx requires a specific one, so don't limit it here
+# There are multiple versions that could work. However, sqlx requires a specific one, so don't limit it here
 # Note that cdylib requires >= 0.32.0 (controlled by the lock file)
 # The `set-min-rusqlite-version` just recipe will parse the minimum version from here, so it must be 3 part
 rusqlite = { version = ">=0.30.0", features = ["functions"] }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.6", features = ["html_reports"] }
 ctor = "0.4"
 env_logger = "0.11"
 hex = "0.4"
