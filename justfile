@@ -88,8 +88,8 @@ clippy *args:
     cargo clippy --workspace --all-targets {{args}}
     cargo clippy --no-default-features --features default_loadable_extension {{args}}
 
-# Generate code coverage report
-coverage *args='--no-clean --open':
+# Generate code coverage report. Will install `cargo llvm-cov` if missing.
+coverage *args='--no-clean --open':  (cargo-install 'cargo-llvm-cov')
     cargo llvm-cov --workspace --all-targets --include-build-script {{args}}
     # TODO: add test coverage for the loadable extension too, and combine them
     # cargo llvm-cov --example {{bin_name}} --no-default-features --features default_loadable_extension --codecov --output-path codecov.info
@@ -174,6 +174,7 @@ test-doc:
     cargo test --doc
     cargo doc --no-deps
 
+# Test extension by loading it into sqlite and running SQL tests
 test-ext: build-ext
     ./tests/test-ext.sh
 
