@@ -1,9 +1,9 @@
 # sqlite-compressions
 
 [![GitHub](https://img.shields.io/badge/github-sqlite--compressions-8da0cb?logo=github)](https://github.com/nyurik/sqlite-compressions)
-[![crates.io version](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
-[![docs.rs docs](https://docs.rs/sqlite-compressions/badge.svg)](https://docs.rs/sqlite-compressions)
-[![license](https://img.shields.io/crates/l/sqlite-compressions.svg)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
+[![license](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
+[![docs.rs](https://img.shields.io/docsrs/sqlite-compressions)](https://docs.rs/sqlite-compressions)
+[![license](https://img.shields.io/crates/l/sqlite-compressions)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/nyurik/sqlite-compressions)](https://app.codecov.io/gh/nyurik/sqlite-compressions)
 
