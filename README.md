@@ -1,7 +1,7 @@
 # sqlite-compressions
 
 [![GitHub repo](https://img.shields.io/badge/github-sqlite--compressions-8da0cb?logo=github)](https://github.com/nyurik/sqlite-compressions)
-[![crates.io license](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
+[![crates.io version](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
 [![docs.rs status](https://img.shields.io/docsrs/sqlite-compressions)](https://docs.rs/sqlite-compressions)
 [![crates.io license](https://img.shields.io/crates/l/sqlite-compressions)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
 [![CI build status](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
