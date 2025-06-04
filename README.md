@@ -1,10 +1,10 @@
 # sqlite-compressions
 
-[![GitHub](https://img.shields.io/badge/github-sqlite--compressions-8da0cb?logo=github)](https://github.com/nyurik/sqlite-compressions)
-[![license](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
-[![docs.rs](https://img.shields.io/docsrs/sqlite-compressions)](https://docs.rs/sqlite-compressions)
-[![license](https://img.shields.io/crates/l/sqlite-compressions)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
-[![CI build](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
+[![GitHub repo](https://img.shields.io/badge/github-sqlite--compressions-8da0cb?logo=github)](https://github.com/nyurik/sqlite-compressions)
+[![crates.io license](https://img.shields.io/crates/v/sqlite-compressions.svg)](https://crates.io/crates/sqlite-compressions)
+[![docs.rs status](https://img.shields.io/docsrs/sqlite-compressions)](https://docs.rs/sqlite-compressions)
+[![crates.io license](https://img.shields.io/crates/l/sqlite-compressions)](https://github.com/nyurik/sqlite-compressions/blob/main/LICENSE-APACHE)
+[![CI build status](https://github.com/nyurik/sqlite-compressions/actions/workflows/ci.yml/badge.svg)](https://github.com/nyurik/sqlite-compressions/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/nyurik/sqlite-compressions)](https://app.codecov.io/gh/nyurik/sqlite-compressions)
 
 Implement `SQLite` compression, decompression, and testing functions for Brotli, bzip2, and gzip encodings, as well as
