@@ -1,5 +1,6 @@
 [package]
 name = "sqlite-compressions"
+# This value is also used in the README.md
 version = "0.3.5"
 description = "Compression, decompression, testing, diffing and patching functions for SQLite: gzip, brotli, bsdiff, ..."
 authors = ["Yuri Astrakhan <YuriAstrakhan@gmail.com>"]
