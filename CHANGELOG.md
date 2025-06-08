@@ -9,13 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.6](https://github.com/nyurik/sqlite-compressions/compare/v0.3.5...v0.3.6) - 2025-06-08
 
-### Added
-
-- consolidate release CI, dedup release and PR
-
 ### Other
 
 - auto-update dependencies on release
+- consolidate release CI, dedup release and PR
 
 ## [0.3.5](https://github.com/nyurik/sqlite-compressions/compare/v0.3.4...v0.3.5) - 2025-06-07
 
