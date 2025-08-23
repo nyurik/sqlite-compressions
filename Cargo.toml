@@ -61,12 +61,12 @@ qbsdiff = { version = "1.4.3", optional = true }
 rusqlite = { version = ">=0.30.0", features = ["functions"] }
 
 [dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
-ctor = "0.4"
+criterion = { version = "0.7", features = ["html_reports"] }
+ctor = "0.5"
 env_logger = "0.11"
 hex = "0.4"
 insta = { version = "1", features = [] }
-rstest = "0.25"
+rstest = "0.26"
 
 [lints.rust]
 unused_qualifications = "warn"
