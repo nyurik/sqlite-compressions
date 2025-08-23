@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.8](https://github.com/nyurik/sqlite-compressions/compare/v0.3.7...v0.3.8) - 2025-08-23
+
+### Other
+
+- update dependencies ([#122](https://github.com/nyurik/sqlite-compressions/pull/122))
+- format Cargo.toml, minor just cleanup ([#121](https://github.com/nyurik/sqlite-compressions/pull/121))
+- [pre-commit.ci] pre-commit autoupdate ([#118](https://github.com/nyurik/sqlite-compressions/pull/118))
+- use release-plz token in dependabot ci
+
 ## [0.3.7](https://github.com/nyurik/sqlite-compressions/compare/v0.3.6...v0.3.7) - 2025-06-08
 
 ### Other
