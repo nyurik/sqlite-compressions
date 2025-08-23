@@ -5,8 +5,6 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  release:
-    types: [ published ]
   workflow_dispatch:
 
 defaults:
@@ -18,18 +16,18 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
-        with: { tool: just }
+        with: { tool: 'just,cargo-binstall' }
       - run: just ci-test
 
   test-msrv:
     name: Test MSRV
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
@@ -48,7 +46,7 @@ jobs:
     if: github.event_name != 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
         with: { tool: 'just,cargo-llvm-cov' }
@@ -59,7 +57,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: target/llvm-cov/codecov.info
-          fail_ci_if_error: true
 
   build:
     name: Build ${{ matrix.target }}
@@ -89,7 +86,7 @@ jobs:
             os: ubuntu-latest
             sqlite3: sqlite3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
@@ -161,7 +158,7 @@ jobs:
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
@@ -193,6 +190,8 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - name: Result of the needed steps
+        run: echo "${{ toJSON(needs) }}"
       - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: exit 1
 
@@ -213,7 +212,7 @@ jobs:
       group: release-plz-${{ github.ref }}
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - uses: dtolnay/rust-toolchain@stable
       - name: Publish to crates.io if crate's version is newer
@@ -223,9 +222,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-      - name: If version is the same, create a PR proposing new version and changelog for the next release
+      - if: ${{ steps.release.outputs.releases_created == 'false' }}
+        name: If version is the same, create a PR proposing new version and changelog for the next release
         uses: release-plz/action@v0.5
-        if: ${{ steps.release.outputs.releases_created == 'false' }}
         with: { command: release-pr }
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
