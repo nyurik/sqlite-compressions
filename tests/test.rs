@@ -1,3 +1,5 @@
+#![expect(clippy::unwrap_used)]
+
 use insta::assert_snapshot;
 use rusqlite::types::FromSql;
 use rusqlite::{Connection, Result};
