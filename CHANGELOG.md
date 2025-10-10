@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.9](https://github.com/nyurik/sqlite-compressions/compare/v0.3.8...v0.3.9) - 2025-10-10
+
+### Other
+
+- *(deps)* bump the all-cargo-version-updates group across 1 directory with 4 updates ([#129](https://github.com/nyurik/sqlite-compressions/pull/129))
+- use automatic crates.io token
+- add more linting
+- *(just)* minor justfile cleanup
+- *(ci)* improve cargo-install recipe
+- *(ci)* disable telemetry in workflow
+- ci cleanup
+- improve get-create-field in justfile
+- update deps
+
 ## [0.3.8](https://github.com/nyurik/sqlite-compressions/compare/v0.3.7...v0.3.8) - 2025-08-23
 
 ### Other
