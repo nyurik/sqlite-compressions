@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.10](https://github.com/nyurik/sqlite-compressions/compare/v0.3.9...v0.3.10) - 2025-11-10
+
+### Other
+
+- update lock file
+- minor justfile adjustments
+
 ## [0.3.9](https://github.com/nyurik/sqlite-compressions/compare/v0.3.8...v0.3.9) - 2025-10-10
 
 ### Other
