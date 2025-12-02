@@ -61,7 +61,7 @@ qbsdiff = { version = "1.4.3", optional = true }
 rusqlite = { version = ">=0.30.0", features = ["functions"] }
 
 [dev-dependencies]
-criterion = { version = "0.7", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 ctor = "0.6"
 env_logger = "0.11"
 hex = "0.4"
