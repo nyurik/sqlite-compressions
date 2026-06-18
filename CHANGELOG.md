@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.11](https://github.com/nyurik/sqlite-compressions/compare/v0.3.10...v0.3.11) - 2026-06-18
+
+### Other
+
+- update dependencies ([#143](https://github.com/nyurik/sqlite-compressions/pull/143))
+- update codecov, justfile, clippy, msrv ([#142](https://github.com/nyurik/sqlite-compressions/pull/142))
+- add .editorconfig
+- *(deps)* bump actions/checkout from 5 to 6 in the all-actions-version-updates group ([#135](https://github.com/nyurik/sqlite-compressions/pull/135))
+- minor justfile adjustments
+
 ## [0.3.10](https://github.com/nyurik/sqlite-compressions/compare/v0.3.9...v0.3.10) - 2025-11-10
 
 ### Other
