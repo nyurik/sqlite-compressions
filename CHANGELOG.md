@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.12](https://github.com/nyurik/sqlite-compressions/compare/v0.3.11...v0.3.12) - 2026-06-23
+
+### Other
+
+- update lock to latest
+- update .gitignore
+- format justfile
+- *(deps)* bump the all-actions-version-updates group with 3 updates ([#146](https://github.com/nyurik/sqlite-compressions/pull/146))
+- *(deps)* bump log from 0.4.32 to 0.4.33 in the all-cargo-version-updates group ([#145](https://github.com/nyurik/sqlite-compressions/pull/145))
+- justfile cleanup
+
 ## [0.3.11](https://github.com/nyurik/sqlite-compressions/compare/v0.3.10...v0.3.11) - 2026-06-18
 
 ### Other
