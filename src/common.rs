@@ -4,7 +4,7 @@ use std::panic::{RefUnwindSafe, UnwindSafe};
 use log::trace;
 use rusqlite::functions::Context;
 use rusqlite::types::{Type, ValueRef};
-use rusqlite::Error::{InvalidFunctionParameterType, InvalidParameterCount};
+use rusqlite::Error::{InvalidParameterCount, InvalidParameterType};
 
 use crate::rusqlite::functions::FunctionFlags;
 use crate::rusqlite::{Connection, Result};
@@ -46,7 +46,7 @@ pub(crate) fn register_compression<T: Encoder + UnwindSafe + RefUnwindSafe + 'st
 }
 
 fn encoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
-    ctx: &Context,
+    ctx: &mut Context,
 ) -> Result<Option<Vec<u8>>> {
     let param_count = ctx.len();
     if param_count == 0 || param_count > 2 {
@@ -75,18 +75,18 @@ fn encoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
         #[allow(unused_variables)]
         ValueRef::Integer(val) => {
             trace!("{}: unsupported Integer {val:?}", T::enc_name());
-            Err(InvalidFunctionParameterType(0, Type::Integer))
+            Err(InvalidParameterType(0, Type::Integer))
         }
         #[allow(unused_variables)]
         ValueRef::Real(val) => {
             trace!("{}: unsupported Real {val:?}", T::enc_name());
-            Err(InvalidFunctionParameterType(0, Type::Real))
+            Err(InvalidParameterType(0, Type::Real))
         }
     }
 }
 
 fn decoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
-    ctx: &Context,
+    ctx: &mut Context,
 ) -> Result<Option<Vec<u8>>> {
     let param_count = ctx.len();
     if param_count != 1 {
@@ -106,23 +106,23 @@ fn decoder_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
         #[allow(unused_variables)]
         ValueRef::Text(val) => {
             trace!("{}: unsupported Text {val:?}", T::dec_name());
-            Err(InvalidFunctionParameterType(0, Type::Text))
+            Err(InvalidParameterType(0, Type::Text))
         }
         #[allow(unused_variables)]
         ValueRef::Integer(val) => {
             trace!("{}: unsupported Integer {val:?}", T::dec_name());
-            Err(InvalidFunctionParameterType(0, Type::Integer))
+            Err(InvalidParameterType(0, Type::Integer))
         }
         #[allow(unused_variables)]
         ValueRef::Real(val) => {
             trace!("{}: unsupported Real {val:?}", T::dec_name());
-            Err(InvalidFunctionParameterType(0, Type::Real))
+            Err(InvalidParameterType(0, Type::Real))
         }
     }
 }
 
 fn testing_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
-    ctx: &Context,
+    ctx: &mut Context,
 ) -> Result<Option<bool>> {
     let param_count = ctx.len();
     if param_count != 1 {
@@ -142,17 +142,17 @@ fn testing_fn<T: Encoder + UnwindSafe + RefUnwindSafe + 'static>(
         #[allow(unused_variables)]
         ValueRef::Text(val) => {
             trace!("{}: unsupported Text {val:?}", T::test_name());
-            Err(InvalidFunctionParameterType(0, Type::Text))
+            Err(InvalidParameterType(0, Type::Text))
         }
         #[allow(unused_variables)]
         ValueRef::Integer(val) => {
             trace!("{}: unsupported Integer {val:?}", T::test_name());
-            Err(InvalidFunctionParameterType(0, Type::Integer))
+            Err(InvalidParameterType(0, Type::Integer))
         }
         #[allow(unused_variables)]
         ValueRef::Real(val) => {
             trace!("{}: unsupported Real {val:?}", T::test_name());
-            Err(InvalidFunctionParameterType(0, Type::Real))
+            Err(InvalidParameterType(0, Type::Real))
         }
     }
 }

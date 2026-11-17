@@ -5,7 +5,7 @@ use log::trace;
 use rusqlite::functions::{Context, FunctionFlags};
 use rusqlite::types::{Type, ValueRef};
 use rusqlite::Connection;
-use rusqlite::Error::InvalidFunctionParameterType;
+use rusqlite::Error::InvalidParameterType;
 
 #[cfg(not(feature = "trace"))]
 macro_rules! trace {
@@ -41,7 +41,7 @@ pub(crate) fn register_differ<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(
 }
 
 fn diff_fn<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(
-    ctx: &Context,
+    ctx: &mut Context,
 ) -> Result<Option<Vec<u8>>> {
     let Some(source) = get_bytes(ctx, 0)? else {
         return Ok(None);
@@ -53,7 +53,7 @@ fn diff_fn<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(
 }
 
 fn patch_fn<T: Differ + UnwindSafe + RefUnwindSafe + 'static>(
-    ctx: &Context,
+    ctx: &mut Context,
 ) -> Result<Option<Vec<u8>>> {
     let Some(source) = get_bytes(ctx, 0)? else {
         return Ok(None);
@@ -68,7 +68,7 @@ pub(crate) fn get_bytes<'a>(ctx: &'a Context, index: usize) -> Result<Option<&'a
     match ctx.get_raw(index) {
         ValueRef::Blob(val) | ValueRef::Text(val) => Ok(Some(val)),
         ValueRef::Null => Ok(None),
-        ValueRef::Integer(_) => Err(InvalidFunctionParameterType(index, Type::Integer)),
-        ValueRef::Real(_) => Err(InvalidFunctionParameterType(index, Type::Real)),
+        ValueRef::Integer(_) => Err(InvalidParameterType(index, Type::Integer)),
+        ValueRef::Real(_) => Err(InvalidParameterType(index, Type::Real)),
     }
 }
