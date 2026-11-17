@@ -1,4 +1,5 @@
-#![expect(clippy::unwrap_used)]
+// An allow, not an expect: whether clippy flags the unwraps of this file's helpers differs between clippy versions.
+#![allow(clippy::unwrap_used)]
 
 use insta::assert_snapshot;
 use rusqlite::types::FromSql;
@@ -67,13 +68,13 @@ fn common(#[case] func: &str) {
         assert_snapshot!(c.s(func, "%_test(NULL)"), @"NULL");
 
         assert_snapshot!(c.s(func, "%()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
-        assert_snapshot!(c.s(func, "%(1)"), @"Invalid function parameter type Integer at index 0");
-        assert_snapshot!(c.s(func, "%(0.42)"), @"Invalid function parameter type Real at index 0");
+        assert_snapshot!(c.s(func, "%(1)"), @"Invalid function or filter parameter type Integer at index 0");
+        assert_snapshot!(c.s(func, "%(0.42)"), @"Invalid function or filter parameter type Real at index 0");
 
         assert_snapshot!(c.s(func, "%_decode()"), @"Wrong number of parameters passed to query. Got 0, needed 1");
         assert_snapshot!(c.s(func, "%_decode(NULL)"), @"NULL");
-        assert_snapshot!(c.s(func, "%_decode(1)"), @"Invalid function parameter type Integer at index 0");
-        assert_snapshot!(c.s(func, "%_decode(0.42)"), @"Invalid function parameter type Real at index 0");
+        assert_snapshot!(c.s(func, "%_decode(1)"), @"Invalid function or filter parameter type Integer at index 0");
+        assert_snapshot!(c.s(func, "%_decode(0.42)"), @"Invalid function or filter parameter type Real at index 0");
 
         assert_snapshot!(c.s(func, "%_decode(%(''))"), @"");
         assert_snapshot!(c.s(func, "%_decode(%(x''))"), @"");
@@ -167,10 +168,10 @@ fn bsdiff4() {
     assert_snapshot!(c.q("bspatch4(NULL, 'abc')"), @"NULL");
 
     // errors
-    assert_snapshot!(c.q("bsdiff4(x'0123')"), @"wrong number of arguments to function bsdiff4()");
-    assert_snapshot!(c.q("bsdiff4(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bsdiff4()");
-    assert_snapshot!(c.q("bspatch4(x'0123')"), @"wrong number of arguments to function bspatch4()");
-    assert_snapshot!(c.q("bspatch4(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bspatch4()");
+    assert_snapshot!(c.q("bsdiff4(x'0123')"), @"wrong number of arguments to function bsdiff4() in SELECT bsdiff4(x'0123') at offset 7");
+    assert_snapshot!(c.q("bsdiff4(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bsdiff4() in SELECT bsdiff4(x'0123', x'4567', x'89') at offset 7");
+    assert_snapshot!(c.q("bspatch4(x'0123')"), @"wrong number of arguments to function bspatch4() in SELECT bspatch4(x'0123') at offset 7");
+    assert_snapshot!(c.q("bspatch4(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bspatch4() in SELECT bspatch4(x'0123', x'4567', x'89') at offset 7");
 }
 
 #[test]
@@ -204,8 +205,8 @@ fn bsdiffraw() {
     assert_snapshot!(c.q("bspatchraw(NULL, 'abc')"), @"NULL");
 
     // errors
-    assert_snapshot!(c.q("bsdiffraw(x'0123')"), @"wrong number of arguments to function bsdiffraw()");
-    assert_snapshot!(c.q("bsdiffraw(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bsdiffraw()");
-    assert_snapshot!(c.q("bspatchraw(x'0123')"), @"wrong number of arguments to function bspatchraw()");
-    assert_snapshot!(c.q("bspatchraw(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bspatchraw()");
+    assert_snapshot!(c.q("bsdiffraw(x'0123')"), @"wrong number of arguments to function bsdiffraw() in SELECT bsdiffraw(x'0123') at offset 7");
+    assert_snapshot!(c.q("bsdiffraw(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bsdiffraw() in SELECT bsdiffraw(x'0123', x'4567', x'89') at offset 7");
+    assert_snapshot!(c.q("bspatchraw(x'0123')"), @"wrong number of arguments to function bspatchraw() in SELECT bspatchraw(x'0123') at offset 7");
+    assert_snapshot!(c.q("bspatchraw(x'0123', x'4567', x'89')"), @"wrong number of arguments to function bspatchraw() in SELECT bspatchraw(x'0123', x'4567', x'89') at offset 7");
 }
