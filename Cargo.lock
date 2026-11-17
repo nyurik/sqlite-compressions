@@ -1053,7 +1053,7 @@ checksum = "149309498a5f7334b12ddae0cad8aba81ce785fe91755068867e017cf98fee46"
 
 [[package]]
 name = "sqlite-compressions"
-version = "0.3.12"
+version = "0.4.0"
 dependencies = [
  "brotli",
  "bsdiff",
