@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/nyurik/sqlite-compressions/compare/v0.3.12...v0.4.0) - 2026-11-17
+
+### Other
+
+- skip release-plz semver check ([#166](https://github.com/nyurik/sqlite-compressions/pull/166))
+- *(deps)* bump rstest from 0.27.0 to 0.28.0 in the all-cargo-version-updates group across 1 directory ([#165](https://github.com/nyurik/sqlite-compressions/pull/165))
+- [**breaking**] update to rusqlite 0.42, add test-ext-docker ([#164](https://github.com/nyurik/sqlite-compressions/pull/164))
+- *(deps)* bump the all-cargo-version-updates group across 1 directory with 5 updates ([#157](https://github.com/nyurik/sqlite-compressions/pull/157))
+- *(deps)* bump the all-cargo-version-updates group across 1 directory with 2 updates ([#152](https://github.com/nyurik/sqlite-compressions/pull/152))
+- [pre-commit.ci] pre-commit autoupdate ([#151](https://github.com/nyurik/sqlite-compressions/pull/151))
+- fix justfile cargo binstall
+- let rust fmt indent .rs files
+- disallow mem leaking in code
+- ignore CARGO_BUILD_WARNINGS in cargo-install
+- use Rust 1.97 cargo warnings
+
 ## [0.3.12](https://github.com/nyurik/sqlite-compressions/compare/v0.3.11...v0.3.12) - 2026-06-23
 
 ### Other
