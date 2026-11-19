@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2](https://github.com/nyurik/sqlite-compressions/compare/v0.4.1...v0.4.2) - 2026-11-19
+
+### Other
+
+- limit job run time with timeout-minutes ([#169](https://github.com/nyurik/sqlite-compressions/pull/169))
+
 ## [0.4.1](https://github.com/nyurik/sqlite-compressions/compare/v0.4.0...v0.4.1) - 2026-11-19
 
 ### Fixed
