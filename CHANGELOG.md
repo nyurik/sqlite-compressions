@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1](https://github.com/nyurik/sqlite-compressions/compare/v0.4.0...v0.4.1) - 2026-11-19
+
+### Fixed
+
+- *(deps)* bound rusqlite to <0.44 ([#168](https://github.com/nyurik/sqlite-compressions/pull/168))
+
+### Other
+
+- Revert "ci: skip release-plz semver check ([#166](https://github.com/nyurik/sqlite-compressions/pull/166))"
+
 ## [0.4.0](https://github.com/nyurik/sqlite-compressions/compare/v0.3.12...v0.4.0) - 2026-11-17
 
 ### Other
