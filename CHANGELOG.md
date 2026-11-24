@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2](https://github.com/nyurik/sqlite-compressions/compare/v0.4.1...v0.4.2) - 2026-11-24
+
+### Other
+
+- *(deps)* bump env_logger from 0.11.11 to 0.11.12 in the all-cargo-version-updates group ([#171](https://github.com/nyurik/sqlite-compressions/pull/171))
+- limit job run time with timeout-minutes ([#169](https://github.com/nyurik/sqlite-compressions/pull/169))
+
 ## [0.4.1](https://github.com/nyurik/sqlite-compressions/compare/v0.4.0...v0.4.1) - 2026-11-19
 
 ### Fixed
